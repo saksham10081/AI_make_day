@@ -1,176 +1,96 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-const apiKey = import.meta.env.VITE_GEMINI_API_KEY || "";
-
-// --- DATASET: ICONIC INDIAN REGRETS (with per-scene image prompts) ---
+// --- DATASET: 5 ICONIC INDIAN REGRETS (static images) ---
 const REGRET_DATA = [
   {
     id: 'rel_blr_01',
-    title: "Bellandur Swamp",
-    year: "2004",
+    title: "Bellandur Plot",
+    subtitle: "Too Far From The City",
     category: "Real Estate",
     wheelColor: '#8B6914',
-    imagePrompts: [
-      "Marshy swampland in rural Bangalore 2004, red soil, Bajaj Pulsar motorcycle on dusty road, warm afternoon light, cinematic",
-      "Luxury penthouse balcony in Bangalore overlooking glass skyscrapers at golden hour, filter coffee, wealthy lifestyle, cinematic",
-      "Indian office worker stuck in heavy Bangalore traffic at dawn, auto-rickshaws, corporate park in distance, grey tones, cinematic",
+    wheelIcon: '🏗',
+    texts: [
+      "It looked like nothing.\nJust dusty land and a couple of half-built roads.\nYou said, \"Bro this is too far. Who will even come here?\"\nMosquitoes were the only residents.",
+      "Tech parks bloom around your plot.\nGlass buildings rise like ambition itself.\nCompanies call. You don't chase.\nYou negotiate calmly, like someone who owns the ground beneath opportunity.\nYour weekday mornings are slower.\nTraffic is now something you observe, not survive.",
+      "You sit in that same traffic.\nRent auto-debits quietly every month.\nFrom your office window, you see towers built on land you once dismissed.\nYou adjust your backpack and say, \"Hindsight is crazy.\"",
+    ],
+    images: [
+      "/images/bellandur-opportunity.png",
+      "/images/bellandur-dream.png",
+      "/images/bellandur-reality.png",
     ],
   },
   {
     id: 'cry_btc_01',
-    title: "Bitcoin Wallet",
-    year: "2011",
+    title: "Bitcoin",
+    subtitle: "It's Probably A Scam",
     category: "Crypto",
     wheelColor: '#92400e',
-    imagePrompts: [
-      "Indian college hostel room 2011, old laptop on messy desk, posters on wall, warm tungsten light, moody nostalgic, cinematic",
-      "Luxury infinity pool villa overlooking ocean in Goa at sunset, champagne, modern architecture, golden light, cinematic",
-      "Indian office worker at cluttered desk late at night, fluorescent lights, empty coffee cups, overworked, cold blue tones, cinematic",
+    wheelIcon: '₿',
+    texts: [
+      "It sounded fake.\nInternet money? No RBI? No office?\nYou trusted something you could hold — not something stored in a password.\nYou said, \"This will crash. I'm not stupid.\"",
+      "Your tiny experiment becomes legendary.\nFamily members now ask for \"crypto guidance.\"\nYou talk about volatility like it's weather.\nYou don't refresh your salary credit message anymore.\nYou refresh markets for entertainment.",
+      "You forward crash news in the family group chat.\n\"See? I was right.\"\nThen you open an exchange app you installed once.\nBalance: ₹0.\nYou close it like it never existed.",
     ],
-  },
-  {
-    id: 'stk_mrf_01',
-    title: "MRF Shares",
-    year: "1990",
-    category: "Stocks",
-    wheelColor: '#14532d',
-    imagePrompts: [
-      "Vintage 1990 Indian street, white Maruti 800 parked outside share broker office, retro signage, warm nostalgic film grain, cinematic",
-      "Luxury Indian home with lush garden, retired couple having tea on veranda, peaceful wealthy retirement, golden warm tones, cinematic",
-      "Indian man driving past giant MRF billboard in morning traffic, cramped car, melancholy, grey tones, cinematic",
-    ],
-  },
-  {
-    id: 'rel_ggn_01',
-    title: "Gurgaon Phase 5",
-    year: "2006",
-    category: "Real Estate",
-    wheelColor: '#7f1d1d',
-    imagePrompts: [
-      "Barren sandy plot on Gurgaon outskirts 2006, plots-for-sale signboard, dusty road, empty horizon, harsh afternoon sun, cinematic",
-      "Luxury high-rise penthouse in Gurgaon at night, floor-to-ceiling windows, bright city lights and skyscrapers, opulent interior, cinematic",
-      "Crowded Delhi Metro morning rush hour, tired office workers, phone showing Instagram property post, cold fluorescent tones, cinematic",
-    ],
-  },
-  {
-    id: 'cry_btc_02',
-    title: "Bitcoin in 2013",
-    year: "2013",
-    category: "Crypto",
-    wheelColor: '#7c3aed',
-    imagePrompts: [
-      "Indian man staring at laptop showing Bitcoin price chart in 2013, small apartment, skeptical expression, warm indoor lighting, cinematic",
-      "Wealthy Indian man explaining blockchain at a lavish family wedding, sea-facing apartment visible through window, confident and relaxed, cinematic",
-      "Indian man forwarding WhatsApp messages on phone, salary credit notification on screen, modest apartment, evening light, melancholy, cinematic",
-    ],
-  },
-  {
-    id: 'rel_blr_02',
-    title: "Bellandur Before IT",
-    year: "2002",
-    category: "Real Estate",
-    wheelColor: '#b45309',
-    imagePrompts: [
-      "Empty green land with mosquitoes near a lake in Bangalore 2002, a faded for-sale board, overgrown grass, hazy afternoon, cinematic",
-      "Massive IT tech park rising around a premium property, investor signing papers in a glass cabin, city skyline behind, golden hour, cinematic",
-      "Indian man stuck in Bellandur traffic jam looking out car window at the land he once laughed at, frustration, grey overcast, cinematic",
-    ],
-  },
-  {
-    id: 'stk_apl_01',
-    title: "Apple Stock vs iPhone",
-    year: "2008",
-    category: "Stocks",
-    wheelColor: '#0f766e',
-    imagePrompts: [
-      "Excited Indian youth unboxing a new iPhone in 2008, electronics store, bright lights, consumerist joy, cinematic",
-      "Stock portfolio screen showing massive Apple gains, person relaxing on couch with feet up, sleek modern home, warm satisfied tones, cinematic",
-      "Indian person paying iPhone EMI on phone banking app, cracked older iPhone in hand, coffee shop, muted tones, cinematic",
-    ],
-  },
-  {
-    id: 'stk_sip_01',
-    title: "SIP Since First Job",
-    year: "2012",
-    category: "Stocks",
-    wheelColor: '#1d4ed8',
-    imagePrompts: [
-      "Young Indian professional receiving first salary, modest office, excited but unsure, 2012 era phone and clothes, warm indoor light, cinematic",
-      "Calm Indian professional checking a large investment portfolio on tablet, peaceful morning, balcony with garden view, financial freedom aura, cinematic",
-      "30-year-old Indian opening a SIP calculator on laptop, worried expression, small apartment, realizing 8 lost years of compounding, cold blue light, cinematic",
-    ],
-  },
-  {
-    id: 'stk_flp_01',
-    title: "Early Flipkart Employee",
-    year: "2009",
-    category: "Stocks",
-    wheelColor: '#be185d',
-    imagePrompts: [
-      "Tiny Indian startup office in 2009, two desks, a banner saying Flipkart, messy but energetic, warm tungsten light, cinematic",
-      "Confident Indian professional with LinkedIn bio showing Ex-Flipkart, mentoring young founders in a co-working space, city skyline, golden hour, cinematic",
-      "Indian office worker scrolling through Flipkart acquisition news on phone during lunch break, corporate cafeteria, wistful expression, cinematic",
-    ],
-  },
-  {
-    id: 'com_gld_01',
-    title: "Gold in 2001",
-    year: "2001",
-    category: "Commodities",
-    wheelColor: '#a16207',
-    imagePrompts: [
-      "Indian bank interior in 2001, customer choosing between gold and fixed deposit, old-style counter, warm retro tones, cinematic",
-      "Grand Indian wedding fully funded by gold investments, lavish decorations, happy family, gold jewelry shimmering, rich warm tones, cinematic",
-      "Indian man checking savings account with low interest on phone, inflation news on TV in background, modest living room, muted tones, cinematic",
-    ],
-  },
-  {
-    id: 'stk_tsl_01',
-    title: "Tesla in 2010",
-    year: "2010",
-    category: "Stocks",
-    wheelColor: '#dc2626',
-    imagePrompts: [
-      "Early Tesla Roadster on display at a 2010 auto show, skeptical onlookers, futuristic but uncertain vibes, cool blue lighting, cinematic",
-      "Wealthy person watching Elon Musk tweet on phone, portfolio showing massive green gains, luxury modern apartment, triumphant, cinematic",
-      "Indian man refueling petrol hatchback at crowded Indian petrol pump, fuel price board showing high rates, frustration, harsh daylight, cinematic",
+    images: [
+      "/images/bitcoin-opportunity.png",
+      "/images/bitcoin-dream.png",
+      "/images/bitcoin-reality.png",
     ],
   },
   {
     id: 'rel_vrk_01',
     title: "Varkala Beach Property",
-    year: "2010",
+    subtitle: "Too Quiet",
     category: "Real Estate",
     wheelColor: '#059669',
-    imagePrompts: [
-      "Remote quiet beach cliff in Varkala Kerala 2010, no tourists, a small for-sale sign, crashing waves, untouched paradise, golden hour, cinematic",
-      "Beautiful beachside homestay in Varkala fully booked, fairy lights, happy guests on terrace, ocean view, work-from-anywhere lifestyle, cinematic",
-      "Indian person scrolling Varkala travel reels on Instagram at office desk, checking flight prices they won't book, longing, cold office light, cinematic",
+    wheelIcon: '🏖',
+    texts: [
+      "It felt remote.\nNo hype. No crowd. Just waves and silence.\nYou said, \"Nice place for vacation. Not investment.\"",
+      "Your beach house becomes fully booked every season.\nForeign tourists leave glowing reviews.\nWork-from-home becomes work-from-ocean.\nYour mornings start with sunlight, not Slack notifications.\nPeople call your lifestyle \"intentional.\"",
+      "You watch Varkala reels at midnight.\nYou say, \"Bro we should go here sometime.\"\nYou check flight prices.\nClose the tab.\nOpen laptop.",
+    ],
+    images: [
+      "/images/varkala-opportunity.png",
+      "/images/varkala-dream.png",
+      "/images/varkala-reality.png",
     ],
   },
   {
-    id: 'cry_wed_01',
-    title: "Bitcoin vs Big Wedding",
-    year: "2017",
-    category: "Crypto",
-    wheelColor: '#7c2d12',
-    imagePrompts: [
-      "Grand Indian wedding venue being decorated in 2017, massive flower arrangements, expensive lighting, lavish but excessive, warm festive light, cinematic",
-      "Intimate small ceremony in a garden, couple smiling, phone showing huge crypto portfolio gains, simple but rich, golden warm light, cinematic",
-      "Beautiful wedding album on a shelf next to a credit card EMI statement, bittersweet, soft warm living room light, cinematic",
-    ],
-  },
-  {
-    id: 'stk_cvd_01',
-    title: "COVID Crash Buy",
-    year: "2020",
+    id: 'stk_mrf_01',
+    title: "MRF Stock",
+    subtitle: "It's Just A Tyre Company",
     category: "Stocks",
-    wheelColor: '#4338ca',
-    imagePrompts: [
-      "Indian person watching stock market crash on laptop in March 2020, red charts everywhere, news showing pandemic, fear and anxiety, dark room, cinematic",
-      "Confident investor checking portfolio showing massive post-COVID recovery gains, calm home office, green charts, morning coffee, warm light, cinematic",
-      "Indian person watching stock market rally from sidelines in late 2020, phone showing gains they missed, regret, muted evening tones, cinematic",
+    wheelColor: '#14532d',
+    wheelIcon: '📈',
+    texts: [
+      "It wasn't glamorous.\nNo flashy product launches.\nNo trending hashtags.\nJust tyres.\nYou wanted excitement, not stability.",
+      "Silent compounding does its quiet magic.\nNo drama. No noise. Just growth.\nYou become the calm investor in every friend group.\nThe one who says \"long term\" and actually means it.\nMoney grows while you sleep.",
+      "You chase \"next multibagger\" thumbnails on YouTube.\nScreenshot profits at +14%.\nPanic at -9%.\nStill don't own tyres.\nJust buy them.",
+    ],
+    images: [
+      "/images/mrf-opportunity.png",
+      "/images/mrf-dream.png",
+      "/images/mrf-reality.png",
+    ],
+  },
+  {
+    id: 'stk_flp_01',
+    title: "The Startup You Didn't Join",
+    subtitle: "Too Risky",
+    category: "Startups",
+    wheelColor: '#be185d',
+    wheelIcon: '🏢',
+    texts: [
+      "The salary was lower.\nThe office was smaller.\nParents said, \"Stable job is better.\"\nYou chose certainty over curiosity.",
+      "IPO day feels unreal.\nYour ESOPs unlock.\nLinkedIn says \"Grateful for the journey.\"\nYou buy your parents a house.\nYou casually invest in other founders.\nPeople call you brave.",
+      "You scroll past their acquisition news.\nPause for two seconds.\nThink, \"I almost applied there.\"\nThen refresh your payslip.\nIt still feels important.",
+    ],
+    images: [
+      "/images/startup-opportunity.png",
+      "/images/startup-dream.png",
+      "/images/startup-reality.png",
     ],
   },
 ];
@@ -192,69 +112,66 @@ const wheelGradient = (() => {
 // --- STORYBOARD SCENE CONFIG ---
 const SCENE_CONFIG = [
   {
-    label: 'THE OPPORTUNITY',
-    sublabel: 'What was right in front of you',
+    label: 'WHAT YOU MISSED',
+    sublabel: 'Because you thought you knew better',
     accent: '#c5a059',
+    accentBg: 'rgba(197, 160, 89, 0.08)',
+    number: 'I',
   },
   {
     label: 'THE LIFE YOU NEVER LIVED',
-    sublabel: 'If you had taken the chance',
+    sublabel: 'If only you had taken the chance',
     accent: '#22c55e',
+    accentBg: 'rgba(34, 197, 94, 0.08)',
+    number: 'II',
   },
   {
     label: 'YOUR REALITY',
-    sublabel: 'Monday through Friday',
+    sublabel: 'Monday through Friday, forever',
     accent: '#ef4444',
+    accentBg: 'rgba(239, 68, 68, 0.08)',
+    number: 'III',
   },
 ];
 
-// ============================================================
-// IMAGE GENERATION (Gemini 3 Pro Image via Gemini API)
-// ============================================================
-
-const generateImage = async (prompt, signal) => {
-  if (signal?.aborted) return null;
-
-  try {
-    const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-pro-image-preview:generateContent?key=${apiKey}`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: `Generate an image: ${prompt}` }] }],
-          generationConfig: { responseModalities: ['IMAGE'] },
-        }),
-        signal,
-      }
-    );
-
-    const result = await response.json();
-    const parts = result.candidates?.[0]?.content?.parts || [];
-    const imagePart = parts.find((p) => p.inlineData);
-
-    if (imagePart) {
-      return `data:${imagePart.inlineData.mimeType};base64,${imagePart.inlineData.data}`;
-    }
-    return null;
-  } catch (err) {
-    if (err.name === 'AbortError') return null;
-    console.warn('Image generation failed:', err.message);
-    return null;
-  }
-};
-
-const generateAllSceneImages = async (prompts, onImageReady, signal) => {
-  const promises = prompts.map(async (prompt, index) => {
-    const url = await generateImage(prompt, signal);
-    if (url) onImageReady(index, url);
-  });
-  await Promise.allSettled(promises);
+// Stagger animation for text lines
+const lineVariants = {
+  hidden: { opacity: 0, x: -10, filter: 'blur(4px)' },
+  visible: (i) => ({
+    opacity: 1,
+    x: 0,
+    filter: 'blur(0px)',
+    transition: { delay: 0.5 + i * 0.18, duration: 0.6, ease: [0.25, 1, 0.5, 1] },
+  }),
 };
 
 // ============================================================
 // COMPONENTS
 // ============================================================
+
+const GearSVG = ({ size = 60, className = '' }) => (
+  <svg width={size} height={size} viewBox="0 0 100 100" className={className}>
+    <g fill="none" stroke="url(#gear-grad)" strokeWidth="2.5">
+      {[...Array(12)].map((_, i) => {
+        const angle = (i * 30 * Math.PI) / 180;
+        const x1 = 50 + 38 * Math.cos(angle);
+        const y1 = 50 + 38 * Math.sin(angle);
+        const x2 = 50 + 46 * Math.cos(angle);
+        const y2 = 50 + 46 * Math.sin(angle);
+        return <line key={i} x1={x1} y1={y1} x2={x2} y2={y2} strokeWidth="6" strokeLinecap="round" />;
+      })}
+      <circle cx="50" cy="50" r="38" />
+      <circle cx="50" cy="50" r="28" />
+      <circle cx="50" cy="50" r="12" fill="url(#gear-grad)" />
+    </g>
+    <defs>
+      <linearGradient id="gear-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#c5a059" />
+        <stop offset="100%" stopColor="#8B6914" />
+      </linearGradient>
+    </defs>
+  </svg>
+);
 
 const LandingStage = ({ onSpin }) => (
   <motion.div
@@ -262,7 +179,7 @@ const LandingStage = ({ onSpin }) => (
     animate={{ opacity: 1 }}
     exit={{ opacity: 0, scale: 0.95 }}
     transition={{ duration: 0.5 }}
-    className="flex-1 flex flex-col items-center justify-center p-6 text-center"
+    className="flex-1 flex flex-col items-center justify-center p-6 text-center relative overflow-hidden"
   >
     <motion.div
       initial={{ y: -20, opacity: 0 }}
@@ -276,6 +193,7 @@ const LandingStage = ({ onSpin }) => (
       REGRET <br /> ROULETTE
     </h1>
 
+    {/* Ornate wheel */}
     <div
       className="relative group cursor-pointer"
       onClick={onSpin}
@@ -286,29 +204,134 @@ const LandingStage = ({ onSpin }) => (
       role="button"
       aria-label="Spin the roulette wheel"
     >
+      {/* Outer decorative ring with studs */}
+      <div className="absolute -inset-5 rounded-full border-[3px] border-[#c5a059]/20" />
+      <div className="absolute -inset-3 rounded-full border-[1px] border-[#c5a059]/10" />
+
+      {/* Decorative corner gears */}
+      <motion.div
+        animate={{ rotate: 360 }}
+        transition={{ repeat: Infinity, duration: 20, ease: 'linear' }}
+        className="absolute -top-8 -left-8 opacity-30"
+      >
+        <GearSVG size={50} />
+      </motion.div>
+      <motion.div
+        animate={{ rotate: -360 }}
+        transition={{ repeat: Infinity, duration: 25, ease: 'linear' }}
+        className="absolute -top-6 -right-6 opacity-20"
+      >
+        <GearSVG size={40} />
+      </motion.div>
+      <motion.div
+        animate={{ rotate: 360 }}
+        transition={{ repeat: Infinity, duration: 30, ease: 'linear' }}
+        className="absolute -bottom-6 -left-6 opacity-20"
+      >
+        <GearSVG size={40} />
+      </motion.div>
+      <motion.div
+        animate={{ rotate: -360 }}
+        transition={{ repeat: Infinity, duration: 22, ease: 'linear' }}
+        className="absolute -bottom-8 -right-8 opacity-30"
+      >
+        <GearSVG size={50} />
+      </motion.div>
+
       <motion.div
         whileHover={{ scale: 1.02 }}
         whileTap={{ scale: 0.98 }}
-        className="w-64 h-64 md:w-80 md:h-80 rounded-full border-[12px] border-[#1a1a1a] shadow-[0_0_80px_rgba(0,0,0,1)] relative flex items-center justify-center bg-[#050505] overflow-hidden"
+        className="w-72 h-72 md:w-[340px] md:h-[340px] rounded-full relative flex items-center justify-center overflow-hidden"
+        style={{
+          border: '14px solid transparent',
+          backgroundClip: 'padding-box',
+          boxShadow: '0 0 80px rgba(197,160,89,0.15), inset 0 0 40px rgba(0,0,0,0.8), 0 0 0 14px #1a1408, 0 0 0 17px #c5a059, 0 0 0 20px #1a1408',
+        }}
       >
-        <div className="absolute inset-0 border border-yellow-600/10 rounded-full" />
+        {/* Metallic ring texture */}
+        <div
+          className="absolute inset-0 rounded-full"
+          style={{
+            background: 'radial-gradient(circle at 30% 30%, rgba(197,160,89,0.1) 0%, transparent 50%)',
+          }}
+        />
+
+        {/* Slow spinning decorative ring */}
         <div className="w-full h-full absolute animate-[spin_60s_linear_infinite]">
-          {[...Array(37)].map((_, i) => (
+          {[...Array(24)].map((_, i) => (
             <div
               key={i}
-              className={`absolute top-0 left-1/2 w-4 h-1/2 origin-bottom -translate-x-1/2 ${i % 2 === 0 ? 'bg-red-900' : 'bg-neutral-900'} border-x border-black/30`}
-              style={{ transform: `rotate(${(i * 360) / 37}deg)` }}
-            >
-              <span className="text-[7px] font-bold mt-1 block text-center text-white/20">
-                {i}
-              </span>
-            </div>
+              className="absolute top-0 left-1/2 w-[1px] h-1/2 origin-bottom -translate-x-1/2"
+              style={{
+                transform: `rotate(${(i * 360) / 24}deg)`,
+                background: i % 2 === 0
+                  ? 'linear-gradient(to top, transparent 40%, rgba(197,160,89,0.3) 100%)'
+                  : 'linear-gradient(to top, transparent 50%, rgba(197,160,89,0.1) 100%)',
+              }}
+            />
           ))}
         </div>
-        <div className="z-10 w-28 h-28 rounded-full bg-gradient-to-br from-[#2a2a2a] to-[#000] border-4 border-[#c5a059] shadow-[0_0_30px_rgba(197,160,89,0.3)] flex flex-col items-center justify-center">
-          <div className="w-2 h-14 bg-[#c5a059] rounded-full absolute -top-4 shadow-xl" />
-          <span className="text-yellow-500 font-black italic text-xl tracking-tighter">
+
+        {/* Inner colored segments ring */}
+        <div
+          className="absolute rounded-full"
+          style={{
+            inset: '20px',
+            background: wheelGradient,
+            boxShadow: 'inset 0 0 20px rgba(0,0,0,0.6)',
+          }}
+        >
+          {WHEEL_ITEMS.map((_, i) => (
+            <div
+              key={i}
+              className="absolute top-0 left-1/2 w-[1px] h-1/2 origin-bottom bg-black/40"
+              style={{
+                transform: `translateX(-50%) rotate(${i * SEGMENT_ANGLE}deg)`,
+              }}
+            />
+          ))}
+        </div>
+
+        {/* Inner decorative ring */}
+        <div
+          className="absolute rounded-full border-[2px] border-[#c5a059]/40"
+          style={{ inset: '18px' }}
+        />
+        <div
+          className="absolute rounded-full border-[1px] border-[#c5a059]/20"
+          style={{ inset: '50px' }}
+        />
+
+        {/* Center hub with layered metallic look */}
+        <div className="z-10 w-28 h-28 md:w-32 md:h-32 rounded-full relative flex flex-col items-center justify-center"
+          style={{
+            background: 'radial-gradient(circle at 35% 35%, #3a3a3a, #0a0a0a)',
+            boxShadow: '0 0 30px rgba(197,160,89,0.4), 0 0 0 4px #c5a059, 0 0 0 6px #1a1408, 0 0 0 8px rgba(197,160,89,0.3)',
+          }}
+        >
+          {/* Inner gear decoration */}
+          <motion.div
+            animate={{ rotate: -360 }}
+            transition={{ repeat: Infinity, duration: 40, ease: 'linear' }}
+            className="absolute inset-2 opacity-20"
+          >
+            <GearSVG size={100} className="w-full h-full" />
+          </motion.div>
+
+          {/* Pointer notch at top */}
+          <div
+            className="absolute -top-7 left-1/2 -translate-x-1/2 w-3 h-6 rounded-b-full z-20"
+            style={{
+              background: 'linear-gradient(to bottom, #c5a059, #8B6914)',
+              boxShadow: '0 4px 12px rgba(197,160,89,0.5)',
+            }}
+          />
+
+          <span className="text-[#c5a059] font-black italic text-2xl tracking-tighter z-10 drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
             SPIN
+          </span>
+          <span className="text-[#c5a059]/40 text-[8px] uppercase tracking-[0.3em] font-bold mt-1 z-10">
+            Your Fate
           </span>
         </div>
       </motion.div>
@@ -337,32 +360,99 @@ const SpinningStage = ({ targetRotation, item, onComplete }) => {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="flex-1 flex flex-col items-center justify-center bg-black relative"
+      className="flex-1 flex flex-col items-center justify-center bg-black relative overflow-hidden"
     >
-      <div className="relative" style={{ width: 320, height: 320 }}>
-        <div className="absolute -top-6 left-1/2 -translate-x-1/2 z-20">
-          <div className="w-0 h-0 border-l-[14px] border-r-[14px] border-t-[28px] border-l-transparent border-r-transparent border-t-[#c5a059] drop-shadow-[0_4px_16px_rgba(197,160,89,0.6)]" />
+      {/* Background ambient glow */}
+      <div
+        className="absolute inset-0 opacity-20"
+        style={{
+          background: 'radial-gradient(circle at 50% 40%, rgba(197,160,89,0.3) 0%, transparent 60%)',
+        }}
+      />
+
+      <div className="relative" style={{ width: 340, height: 340 }}>
+        {/* Ornate pointer at top */}
+        <div className="absolute -top-8 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center">
+          <div
+            className="w-0 h-0"
+            style={{
+              borderLeft: '16px solid transparent',
+              borderRight: '16px solid transparent',
+              borderTop: '32px solid #c5a059',
+              filter: 'drop-shadow(0 4px 12px rgba(197,160,89,0.6))',
+            }}
+          />
+          <div className="w-1 h-2 bg-[#c5a059] rounded-b-sm" />
         </div>
 
+        {/* Outer decorative ring */}
+        <div
+          className="absolute -inset-4 rounded-full"
+          style={{
+            border: '3px solid transparent',
+            boxShadow: '0 0 0 3px #1a1408, 0 0 0 5px #c5a059, 0 0 0 8px #1a1408, 0 0 60px rgba(197,160,89,0.15)',
+          }}
+        />
+
+        {/* Spinning wheel */}
         <motion.div
-          className="w-full h-full rounded-full overflow-hidden border-[10px] border-[#1a1a1a] shadow-[0_0_120px_rgba(197,160,89,0.1)]"
-          style={{ background: wheelGradient }}
+          className="w-full h-full rounded-full overflow-hidden relative"
+          style={{
+            background: wheelGradient,
+            boxShadow: 'inset 0 0 30px rgba(0,0,0,0.7), 0 0 0 10px #1a1408, 0 0 0 13px #c5a059',
+          }}
           animate={{ rotate: targetRotation }}
           transition={{ duration: 4.5, ease: [0.12, 0.82, 0.18, 1] }}
         >
+          {/* Segment dividers */}
           {WHEEL_ITEMS.map((_, i) => (
             <div
               key={i}
-              className="absolute top-0 left-1/2 w-[2px] h-1/2 origin-bottom bg-black/50"
+              className="absolute top-0 left-1/2 w-[1px] h-1/2 origin-bottom bg-black/50"
               style={{
                 transform: `translateX(-50%) rotate(${i * SEGMENT_ANGLE}deg)`,
               }}
             />
           ))}
+
+          {/* Inner decorative ring */}
+          <div
+            className="absolute rounded-full border-[2px] border-black/30"
+            style={{ inset: '25%' }}
+          />
+
+          {/* Icons on segments */}
+          {WHEEL_ITEMS.map((item, i) => {
+            const midAngle = ((i + 0.5) * SEGMENT_ANGLE - 90) * (Math.PI / 180);
+            const radius = 120;
+            const x = 170 + radius * Math.cos(midAngle);
+            const y = 170 + radius * Math.sin(midAngle);
+            return (
+              <span
+                key={`icon-${i}`}
+                className="absolute text-sm drop-shadow-lg"
+                style={{
+                  left: x,
+                  top: y,
+                  transform: 'translate(-50%, -50%)',
+                  fontSize: '14px',
+                }}
+              >
+                {item.wheelIcon}
+              </span>
+            );
+          })}
         </motion.div>
 
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10 w-20 h-20 rounded-full bg-gradient-to-br from-[#2a2a2a] to-[#050505] border-4 border-[#c5a059] shadow-[0_0_30px_rgba(197,160,89,0.3)] flex items-center justify-center">
-          <span className="text-[#c5a059] font-black italic text-2xl">₹</span>
+        {/* Center hub */}
+        <div
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10 w-24 h-24 rounded-full flex items-center justify-center"
+          style={{
+            background: 'radial-gradient(circle at 35% 35%, #2a2a2a, #050505)',
+            boxShadow: '0 0 30px rgba(197,160,89,0.4), 0 0 0 4px #c5a059, 0 0 0 6px #1a1408, 0 0 0 8px rgba(197,160,89,0.3)',
+          }}
+        >
+          <span className="text-[#c5a059] font-black italic text-3xl">₹</span>
         </div>
       </div>
 
@@ -370,9 +460,9 @@ const SpinningStage = ({ targetRotation, item, onComplete }) => {
         initial={{ opacity: 0 }}
         animate={{ opacity: [0.3, 1, 0.3] }}
         transition={{ repeat: Infinity, duration: 1.5 }}
-        className="mt-16 font-mono text-yellow-500/40 uppercase tracking-[0.6em] text-[11px] font-bold"
+        className="mt-16 font-mono text-[#c5a059]/50 uppercase tracking-[0.5em] text-[11px] font-bold"
       >
-        Recalculating Net Worth...
+        Fate is deciding...
       </motion.p>
 
       <AnimatePresence>
@@ -384,7 +474,7 @@ const SpinningStage = ({ targetRotation, item, onComplete }) => {
           >
             <motion.div
               initial={{ opacity: 0 }}
-              animate={{ opacity: 0.85 }}
+              animate={{ opacity: 0.9 }}
               className="absolute inset-0 bg-black"
             />
             <motion.div
@@ -401,16 +491,16 @@ const SpinningStage = ({ targetRotation, item, onComplete }) => {
               >
                 The wheel has spoken
               </motion.p>
-              <h2 className="text-6xl md:text-[110px] font-black italic uppercase tracking-tighter leading-[0.85]">
+              <h2 className="text-5xl md:text-[100px] font-black italic uppercase tracking-tighter leading-[0.85]">
                 {item.title}
               </h2>
               <motion.p
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.5 }}
-                className="text-neutral-500 text-2xl font-black italic mt-4"
+                className="text-neutral-500 text-xl md:text-2xl font-black italic mt-4"
               >
-                {item.year}
+                &ldquo;{item.subtitle}&rdquo;
               </motion.p>
               <motion.div
                 initial={{ scaleX: 0 }}
@@ -426,9 +516,11 @@ const SpinningStage = ({ targetRotation, item, onComplete }) => {
   );
 };
 
-const StoryboardStage = ({ item, sceneIndex, onNext, onReset, sceneImages }) => {
+const StoryboardStage = ({ item, sceneIndex, onNext, onReset }) => {
   const scene = SCENE_CONFIG[sceneIndex];
-  const currentImage = sceneImages[sceneIndex];
+  const currentImage = item.images[sceneIndex];
+  const currentText = item.texts?.[sceneIndex] || '';
+  const lines = currentText.split('\n');
   const isLastScene = sceneIndex === 2;
 
   return (
@@ -446,101 +538,187 @@ const StoryboardStage = ({ item, sceneIndex, onNext, onReset, sceneImages }) => 
           transition={{ duration: 0.8 }}
           className="flex-1 flex flex-col relative"
         >
-          {/* Full-screen image background */}
-          <div className="absolute inset-0 z-0 bg-black">
-            <AnimatePresence mode="wait">
-              {currentImage ? (
-                <motion.img
-                  key={`img-${sceneIndex}`}
-                  initial={{ opacity: 0, scale: 1.1 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 1.2, ease: 'easeOut' }}
-                  src={currentImage}
-                  alt=""
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                <motion.div
-                  key={`loader-${sceneIndex}`}
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  className="w-full h-full flex items-center justify-center"
-                >
-                  <div className="flex flex-col items-center gap-4">
-                    <motion.div
-                      animate={{ rotate: 360 }}
-                      transition={{ repeat: Infinity, duration: 2, ease: 'linear' }}
-                      className="w-10 h-10 border-2 border-transparent rounded-full"
-                      style={{ borderTopColor: scene.accent }}
-                    />
-                    <span className="font-mono text-[10px] uppercase tracking-[0.4em] font-bold" style={{ color: scene.accent }}>
-                      Generating scene
-                    </span>
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-
-            {/* Gradient overlays for readability */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-black/60" />
+          {/* Full-screen image as background */}
+          <div className="absolute inset-0 z-0">
+            <motion.img
+              key={`bg-${sceneIndex}`}
+              initial={{ opacity: 0, scale: 1.08 }}
+              animate={{ opacity: 0.45, scale: 1 }}
+              transition={{ duration: 1.5, ease: 'easeOut' }}
+              src={currentImage}
+              alt=""
+              className="w-full h-full object-cover"
+            />
+            <div className="absolute inset-0 bg-gradient-to-r from-[#0a0a0a] via-[#0a0a0a]/85 to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-transparent to-[#0a0a0a]/60" />
           </div>
 
-          {/* Content overlay */}
-          <div className="relative z-10 flex-1 flex flex-col justify-between p-8 md:p-16">
-            {/* Progress bar + scene header */}
-            <div>
-              <div className="flex items-center gap-3 mb-8">
-                {SCENE_CONFIG.map((_, i) => (
+          {/* Content */}
+          <div className="relative z-10 flex-1 flex flex-col px-8 py-8 md:px-20 md:py-12 max-w-3xl">
+            {/* Progress indicator */}
+            <div className="flex items-center gap-4 mb-10">
+              {SCENE_CONFIG.map((s, i) => (
+                <div key={i} className="flex items-center gap-2">
                   <div
-                    key={i}
-                    className="h-1 flex-1 rounded-full transition-all duration-700"
+                    className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-black border-2 transition-all duration-700"
                     style={{
-                      backgroundColor:
-                        i <= sceneIndex ? scene.accent : 'rgba(255,255,255,0.1)',
+                      borderColor: i <= sceneIndex ? scene.accent : 'rgba(255,255,255,0.1)',
+                      backgroundColor: i <= sceneIndex ? scene.accentBg : 'transparent',
+                      color: i <= sceneIndex ? scene.accent : 'rgba(255,255,255,0.2)',
                     }}
-                  />
-                ))}
-              </div>
-
-              <motion.span
-                initial={{ x: -20, opacity: 0 }}
-                animate={{ x: 0, opacity: 1 }}
-                transition={{ delay: 0.3 }}
-                className="text-sm font-black uppercase tracking-[0.4em] block"
-                style={{ color: scene.accent }}
-              >
-                {scene.label}
-              </motion.span>
-              <motion.p
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.5 }}
-                className="text-white/40 text-xs uppercase tracking-widest font-bold mt-1"
-              >
-                {scene.sublabel}
-              </motion.p>
+                  >
+                    {s.number}
+                  </div>
+                  {i < 2 && (
+                    <div
+                      className="w-12 md:w-20 h-[2px] rounded-full transition-all duration-700"
+                      style={{
+                        backgroundColor: i < sceneIndex ? scene.accent : 'rgba(255,255,255,0.08)',
+                      }}
+                    />
+                  )}
+                </div>
+              ))}
             </div>
 
-            {/* Spacer */}
-            <div />
+            {/* Scene label with accent bar */}
+            <motion.div
+              initial={{ x: -30, opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              transition={{ delay: 0.15, duration: 0.5 }}
+              className="flex items-center gap-4 mb-8"
+            >
+              <div
+                className="w-1 h-10 rounded-full"
+                style={{ backgroundColor: scene.accent }}
+              />
+              <div>
+                <span
+                  className="text-sm md:text-base font-black uppercase tracking-[0.3em] block"
+                  style={{ color: scene.accent }}
+                >
+                  {scene.label}
+                </span>
+                <span className="text-white/25 text-[10px] md:text-xs uppercase tracking-widest font-bold">
+                  {scene.sublabel}
+                </span>
+              </div>
+            </motion.div>
 
-            {/* Footer */}
+            {/* Title */}
             <motion.div
               initial={{ y: 20, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
-              transition={{ delay: 0.4 }}
-              className="flex justify-between items-center"
+              transition={{ delay: 0.25, duration: 0.6 }}
+              className="mb-8"
             >
-              <p className="text-white/30 text-xs uppercase tracking-widest font-bold">
-                {item.title} &middot; {item.year}
+              <h2 className="text-4xl md:text-6xl font-black italic uppercase tracking-tight leading-[0.9]">
+                {item.title}
+              </h2>
+              <p className="text-white/20 text-base md:text-lg italic font-bold mt-2">
+                &ldquo;{item.subtitle}&rdquo;
               </p>
+            </motion.div>
+
+            {/* Narrative text — cinematic reveal */}
+            <div className="flex-1 flex flex-col justify-center mb-8">
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.4, duration: 0.8 }}
+                className="relative max-w-xl rounded-lg overflow-hidden"
+              >
+                {/* Glass card background */}
+                <div
+                  className="absolute inset-0 rounded-lg"
+                  style={{
+                    background: `linear-gradient(135deg, ${scene.accent}08, rgba(255,255,255,0.02), ${scene.accent}05)`,
+                    backdropFilter: 'blur(12px)',
+                    WebkitBackdropFilter: 'blur(12px)',
+                    border: `1px solid ${scene.accent}15`,
+                  }}
+                />
+
+                <div className="relative p-6 md:p-8">
+                  {/* Accent glow dot */}
+                  <motion.div
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    transition={{ delay: 0.5, type: 'spring' }}
+                    className="w-2 h-2 rounded-full mb-5"
+                    style={{
+                      backgroundColor: scene.accent,
+                      boxShadow: `0 0 12px ${scene.accent}80, 0 0 30px ${scene.accent}40`,
+                    }}
+                  />
+
+                  {lines.map((line, i) => {
+                    const isFirstLine = i === 0;
+                    const isQuote = line.startsWith('"') || line.startsWith('\u201C');
+
+                    return (
+                      <motion.p
+                        key={i}
+                        custom={i}
+                        initial="hidden"
+                        animate="visible"
+                        variants={lineVariants}
+                        className={`mb-2 ${
+                          isFirstLine
+                            ? 'text-xl md:text-2xl font-bold text-white/95 leading-snug'
+                            : isQuote
+                              ? 'text-base md:text-lg italic font-semibold leading-relaxed pl-4'
+                              : 'text-base md:text-lg font-medium text-white/65 leading-relaxed'
+                        }`}
+                        style={{
+                          textShadow: '0 2px 12px rgba(0,0,0,0.6)',
+                          ...(isQuote ? { color: scene.accent, borderLeft: `2px solid ${scene.accent}50`, } : {}),
+                        }}
+                      >
+                        {line}
+                      </motion.p>
+                    );
+                  })}
+
+                  {/* Bottom accent line */}
+                  <motion.div
+                    initial={{ scaleX: 0 }}
+                    animate={{ scaleX: 1 }}
+                    transition={{ delay: 0.5 + lines.length * 0.18, duration: 0.8 }}
+                    className="h-[1px] mt-4 origin-left"
+                    style={{
+                      background: `linear-gradient(to right, ${scene.accent}60, transparent)`,
+                    }}
+                  />
+                </div>
+              </motion.div>
+            </div>
+
+            {/* Bottom actions */}
+            <motion.div
+              initial={{ y: 20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ delay: 0.8 }}
+              className="flex items-center justify-between"
+            >
+              <div className="flex items-center gap-3">
+                <div
+                  className="w-2 h-2 rounded-full"
+                  style={{ backgroundColor: scene.accent }}
+                />
+                <span className="text-white/20 text-xs uppercase tracking-widest font-bold">
+                  {item.category}
+                </span>
+              </div>
 
               {isLastScene ? (
                 <button
                   onClick={onReset}
-                  className="px-10 py-4 bg-white text-black font-black uppercase italic tracking-widest hover:bg-[#c5a059] transition-all cursor-pointer text-sm"
+                  className="px-10 py-4 text-black font-black uppercase italic tracking-widest transition-all cursor-pointer text-sm rounded-sm"
+                  style={{
+                    background: 'linear-gradient(135deg, #c5a059, #e8c878)',
+                    boxShadow: '0 4px 20px rgba(197,160,89,0.3)',
+                  }}
                   aria-label="Spin again"
                 >
                   Spin Again
@@ -548,7 +726,8 @@ const StoryboardStage = ({ item, sceneIndex, onNext, onReset, sceneImages }) => 
               ) : (
                 <button
                   onClick={onNext}
-                  className="px-8 py-4 border border-white/20 text-white font-black uppercase italic tracking-widest hover:bg-white/10 transition-colors cursor-pointer group text-sm backdrop-blur-sm"
+                  className="px-8 py-4 border text-white font-black uppercase italic tracking-widest hover:bg-white/5 transition-all cursor-pointer group text-sm backdrop-blur-md rounded-sm"
+                  style={{ borderColor: `${scene.accent}40` }}
                   aria-label="Continue to next scene"
                 >
                   Continue
@@ -558,6 +737,23 @@ const StoryboardStage = ({ item, sceneIndex, onNext, onReset, sceneImages }) => 
                 </button>
               )}
             </motion.div>
+          </div>
+
+          {/* Right-side image peek (desktop only) */}
+          <div className="hidden md:block absolute right-0 top-0 bottom-0 w-[45%] z-5 pointer-events-none">
+            <motion.img
+              key={`peek-${sceneIndex}`}
+              initial={{ opacity: 0, x: 40 }}
+              animate={{ opacity: 0.7, x: 0 }}
+              transition={{ duration: 1.2, delay: 0.3, ease: 'easeOut' }}
+              src={currentImage}
+              alt=""
+              className="w-full h-full object-cover"
+              style={{
+                maskImage: 'linear-gradient(to right, transparent 0%, black 30%)',
+                WebkitMaskImage: 'linear-gradient(to right, transparent 0%, black 30%)',
+              }}
+            />
           </div>
         </motion.div>
       </AnimatePresence>
@@ -575,12 +771,16 @@ const App = () => {
   const [wheelRotation, setWheelRotation] = useState(0);
   const [sceneIndex, setSceneIndex] = useState(0);
   const [spinKey, setSpinKey] = useState(0);
-  const [sceneImages, setSceneImages] = useState([null, null, null]);
-  const abortRef = useRef(null);
+  const seenIdsRef = useRef(new Set());
 
   const handleSpin = () => {
-    const item =
-      REGRET_DATA[Math.floor(Math.random() * REGRET_DATA.length)];
+    let available = REGRET_DATA.filter((r) => !seenIdsRef.current.has(r.id));
+    if (available.length === 0) {
+      seenIdsRef.current.clear();
+      available = REGRET_DATA;
+    }
+    const item = available[Math.floor(Math.random() * available.length)];
+    seenIdsRef.current.add(item.id);
 
     const matchingIndices = WHEEL_ITEMS
       .map((w, idx) => (w.id === item.id ? idx : -1))
@@ -591,31 +791,11 @@ const App = () => {
     const offset = (360 - segmentIndex * SEGMENT_ANGLE) % 360;
     const fullSpins = (5 + Math.floor(Math.random() * 3)) * 360;
 
-    if (abortRef.current) abortRef.current.abort();
-
     setSelectedItem(item);
     setWheelRotation(fullSpins + offset);
     setSpinKey((prev) => prev + 1);
     setSceneIndex(0);
-    setSceneImages([null, null, null]);
     setStage('spinning');
-
-    if (apiKey) {
-      const controller = new AbortController();
-      abortRef.current = controller;
-
-      generateAllSceneImages(
-        item.imagePrompts,
-        (index, url) => {
-          setSceneImages((prev) => {
-            const next = [...prev];
-            next[index] = url;
-            return next;
-          });
-        },
-        controller.signal
-      );
-    }
   };
 
   const handleSpinComplete = () => setStage('storyboard');
@@ -625,8 +805,6 @@ const App = () => {
   };
 
   const handleReset = () => {
-    if (abortRef.current) abortRef.current.abort();
-    setSceneImages([null, null, null]);
     setStage('landing');
   };
 
@@ -656,7 +834,6 @@ const App = () => {
             sceneIndex={sceneIndex}
             onNext={handleNextScene}
             onReset={handleReset}
-            sceneImages={sceneImages}
           />
         )}
       </AnimatePresence>
