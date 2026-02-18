@@ -89,7 +89,7 @@ const SCENE_CONFIG = [
 ];
 
 // ============================================================
-// IMAGE GENERATION (Gemini 2.5 Flash Image — free tier)
+// IMAGE GENERATION (Gemini 3 Pro Image via Gemini API)
 // ============================================================
 
 const generateImage = async (prompt, signal) => {
@@ -97,7 +97,7 @@ const generateImage = async (prompt, signal) => {
 
   try {
     const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image:generateContent?key=${apiKey}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-pro-image-preview:generateContent?key=${apiKey}`,
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
