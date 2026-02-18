@@ -509,11 +509,6 @@ const StoryboardStage = ({ item, sceneIndex, onNext, onReset }) => {
   const currentText = item.texts?.[sceneIndex] || '';
   const lines = currentText.split('\n');
   const isLastScene = sceneIndex === 2;
-  const [showActions, setShowActions] = useState(false);
-
-  useEffect(() => {
-    setShowActions(false);
-  }, [sceneIndex]);
 
   return (
     <motion.div
@@ -648,59 +643,56 @@ const StoryboardStage = ({ item, sceneIndex, onNext, onReset }) => {
                   key={sceneIndex}
                   lines={lines}
                   accent={scene.accent}
-                  onAllRevealed={() => setShowActions(true)}
+                  onAllRevealed={() => {}}
                 />
               </motion.div>
             </div>
 
-            {/* Actions */}
-            <AnimatePresence>
-              {showActions && (
-                <motion.div
-                  initial={{ y: 12, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  transition={{ duration: 0.5 }}
-                  className="flex items-center justify-center gap-4 pt-6 pb-14 md:pt-8 md:pb-16"
-                >
-                  {isLastScene ? (
-                    <button
-                      onClick={onReset}
-                      className="text-black font-black uppercase italic tracking-widest transition-all cursor-pointer text-xs md:text-sm"
-                      style={{
-                        padding: '16px 23px',
-                        borderRadius: '16px',
-                        background: 'linear-gradient(135deg, #e2a808, #e8c878)',
-                        boxShadow: '0 4px 24px rgba(226,168,8,0.3)',
-                      }}
-                      aria-label="Spin again"
-                    >
-                      Spin Again
-                    </button>
-                  ) : (
-                    <button
-                      onClick={onNext}
-                      className="font-black uppercase italic tracking-widest transition-all cursor-pointer group text-xs md:text-sm"
-                      style={{
-                        padding: '16px 23px',
-                        borderRadius: '16px',
-                        backgroundColor: '#e2a808',
-                        color: '#000',
-                        boxShadow: '0 4px 24px rgba(226,168,8,0.3)',
-                      }}
-                      aria-label="Continue to next scene"
-                    >
-                      Continue
-                      <span className="inline-block ml-2 group-hover:translate-x-1 transition-transform">
-                        &rarr;
-                      </span>
-                    </button>
-                  )}
-                </motion.div>
-              )}
-            </AnimatePresence>
           </div>
         </motion.div>
       </AnimatePresence>
+
+      {/* Fixed bottom action button */}
+      <div
+        className="absolute bottom-0 left-0 right-0 z-30 flex items-center justify-center pb-8 md:pb-10 pt-6"
+        style={{
+          background: 'linear-gradient(to top, #0a0a0a 40%, transparent)',
+        }}
+      >
+        {isLastScene ? (
+          <button
+            onClick={onReset}
+            className="text-black font-black uppercase italic tracking-widest transition-all cursor-pointer text-xs md:text-sm"
+            style={{
+              padding: '16px 23px',
+              borderRadius: '16px',
+              background: 'linear-gradient(135deg, #e2a808, #e8c878)',
+              boxShadow: '0 4px 24px rgba(226,168,8,0.3)',
+            }}
+            aria-label="Spin again"
+          >
+            Spin Again
+          </button>
+        ) : (
+          <button
+            onClick={onNext}
+            className="font-black uppercase italic tracking-widest transition-all cursor-pointer group text-xs md:text-sm"
+            style={{
+              padding: '16px 23px',
+              borderRadius: '16px',
+              backgroundColor: '#e2a808',
+              color: '#000',
+              boxShadow: '0 4px 24px rgba(226,168,8,0.3)',
+            }}
+            aria-label="Continue to next scene"
+          >
+            Continue
+            <span className="inline-block ml-2 group-hover:translate-x-1 transition-transform">
+              &rarr;
+            </span>
+          </button>
+        )}
+      </div>
     </motion.div>
   );
 };
