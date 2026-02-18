@@ -89,41 +89,39 @@ const SCENE_CONFIG = [
 ];
 
 // ============================================================
-// IMAGE GENERATION (Google Imagen via Gemini API)
+// IMAGE GENERATION (Gemini 2.5 Flash Image — free tier)
 // ============================================================
 
 const generateImage = async (prompt, signal) => {
-  let retries = 0;
-  const maxRetries = 2;
+  if (signal?.aborted) return null;
 
-  while (retries < maxRetries) {
-    if (signal?.aborted) return null;
-    try {
-      const response = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/imagen-4.0-fast-generate-001:predict?key=${apiKey}`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            instances: [{ prompt }],
-            parameters: { sampleCount: 1 },
-          }),
-          signal,
-        }
-      );
-
-      const result = await response.json();
-      if (result.predictions?.[0]?.bytesBase64Encoded) {
-        return `data:image/png;base64,${result.predictions[0].bytesBase64Encoded}`;
+  try {
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image:generateContent?key=${apiKey}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: `Generate an image: ${prompt}` }] }],
+          generationConfig: { responseModalities: ['IMAGE'] },
+        }),
+        signal,
       }
-      throw new Error("No image in response");
-    } catch (err) {
-      if (err.name === 'AbortError') return null;
-      retries++;
-      await new Promise((r) => setTimeout(r, Math.pow(2, retries) * 1000));
+    );
+
+    const result = await response.json();
+    const parts = result.candidates?.[0]?.content?.parts || [];
+    const imagePart = parts.find((p) => p.inlineData);
+
+    if (imagePart) {
+      return `data:${imagePart.inlineData.mimeType};base64,${imagePart.inlineData.data}`;
     }
+    return null;
+  } catch (err) {
+    if (err.name === 'AbortError') return null;
+    console.warn('Image generation failed:', err.message);
+    return null;
   }
-  return null;
 };
 
 const generateAllSceneImages = async (prompts, onImageReady, signal) => {
