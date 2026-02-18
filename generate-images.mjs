@@ -1,7 +1,11 @@
 import fs from 'fs';
 import path from 'path';
 
-const API_KEY = 'AIzaSyA4sR_JALXhyU6igetS8ClU3Cn70CMysLc';
+const API_KEY = process.env.VITE_GEMINI_API_KEY;
+if (!API_KEY) {
+  console.error('Missing VITE_GEMINI_API_KEY in .env — run: export VITE_GEMINI_API_KEY=your_key');
+  process.exit(1);
+}
 const MODEL = 'gemini-3-pro-image-preview';
 const OUTPUT_DIR = path.resolve('public/images');
 
