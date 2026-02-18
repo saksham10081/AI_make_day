@@ -134,7 +134,7 @@ const SCENE_CONFIG = [
   },
 ];
 
-const LINE_INTERVAL = 1200;
+const LINE_INTERVAL = 3000;
 
 const NarrativeText = ({ lines, accent, onAllRevealed }) => {
   const [activeIndex, setActiveIndex] = useState(-1);
@@ -146,15 +146,15 @@ const NarrativeText = ({ lines, accent, onAllRevealed }) => {
       setTimeout(() => {
         setActiveIndex(i);
         if (i === totalLines - 1 && onAllRevealed) {
-          setTimeout(onAllRevealed, 600);
+          setTimeout(onAllRevealed, 1000);
         }
-      }, 500 + i * LINE_INTERVAL)
+      }, 800 + i * LINE_INTERVAL)
     );
     return () => timers.forEach(clearTimeout);
   }, [lines, totalLines, onAllRevealed]);
 
   return (
-    <div className="space-y-1">
+    <div className="space-y-2">
       {lines.map((line, i) => {
         const isVisible = i <= activeIndex;
         const isActive = i === activeIndex;
@@ -164,35 +164,30 @@ const NarrativeText = ({ lines, accent, onAllRevealed }) => {
         return (
           <motion.div
             key={i}
-            initial={{ opacity: 0, y: 16, filter: 'blur(8px)' }}
+            initial={{ opacity: 0, y: 20, filter: 'blur(8px)' }}
             animate={isVisible ? {
-              opacity: isActive ? 1 : isPast ? 0.4 : 0,
+              opacity: isActive ? 1 : isPast ? 0.35 : 0,
               y: 0,
               filter: 'blur(0px)',
-              scale: isActive ? 1 : 0.97,
-            } : { opacity: 0, y: 16, filter: 'blur(8px)' }}
+              scale: isActive ? 1 : 0.96,
+            } : { opacity: 0, y: 20, filter: 'blur(8px)' }}
             transition={{
-              duration: 0.6,
+              duration: 0.8,
               ease: [0.22, 1, 0.36, 1],
             }}
-            className={`origin-left ${isQuote && isActive ? 'pl-4' : ''}`}
-            style={{
-              ...(isQuote && isActive ? {
-                borderLeft: `2px solid ${accent}60`,
-              } : {}),
-            }}
+            className="text-center"
           >
             <p
-              className={`transition-all duration-500 ${
+              className={`transition-all duration-700 ${
                 isActive
-                  ? 'text-lg md:text-2xl font-bold text-white leading-snug'
+                  ? 'text-base md:text-xl font-semibold text-white leading-relaxed'
                   : isPast
-                    ? 'text-xs md:text-sm font-medium text-white/35 leading-relaxed'
-                    : 'text-base font-medium text-white/60'
+                    ? 'text-[11px] md:text-sm font-medium text-white/30 leading-relaxed'
+                    : 'text-sm font-medium text-white/50'
               }`}
               style={{
-                textShadow: isActive ? '0 2px 16px rgba(0,0,0,0.7)' : 'none',
-                ...(isQuote && isActive ? { color: accent } : {}),
+                textShadow: isActive ? '0 2px 20px rgba(0,0,0,0.6)' : 'none',
+                ...(isQuote && isActive ? { color: accent, fontStyle: 'italic' } : {}),
               }}
             >
               {line}
@@ -534,8 +529,16 @@ const StoryboardStage = ({ item, sceneIndex, onNext, onReset }) => {
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className="flex-1 flex flex-col relative"
+      className="flex-1 flex flex-col relative overflow-hidden"
     >
+      {/* Subtle ambient background glow */}
+      <div
+        className="absolute inset-0 pointer-events-none z-0"
+        style={{
+          background: `radial-gradient(ellipse at 70% 50%, ${scene.accent}12 0%, transparent 60%)`,
+        }}
+      />
+
       <AnimatePresence mode="wait">
         <motion.div
           key={sceneIndex}
@@ -543,211 +546,167 @@ const StoryboardStage = ({ item, sceneIndex, onNext, onReset }) => {
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.8 }}
-          className="flex-1 flex flex-col relative"
+          className="flex-1 flex flex-col relative z-10"
         >
-          {/* Full-screen image as background */}
-          <div className="absolute inset-0 z-0">
-            <motion.img
-              key={`bg-${sceneIndex}`}
-              initial={{ opacity: 0, scale: 1.08 }}
-              animate={{ opacity: 0.45, scale: 1 }}
-              transition={{ duration: 1.5, ease: 'easeOut' }}
-              src={currentImage}
-              alt=""
-              className="w-full h-full object-cover"
-            />
-            <div className="absolute inset-0 bg-gradient-to-r from-[#0a0a0a] via-[#0a0a0a]/85 to-transparent" />
-            <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-transparent to-[#0a0a0a]/60" />
-          </div>
-
-          {/* Content */}
-          <div className="relative z-10 flex-1 flex flex-col px-8 py-8 md:px-20 md:py-12 max-w-3xl">
-            {/* Progress indicator */}
-            <div className="flex items-center gap-4 mb-10">
+          {/* Top bar: progress + category */}
+          <div className="flex items-center justify-between px-6 pt-6 pb-6 md:px-12 md:pt-10 md:pb-8">
+            <div className="flex items-center gap-3">
               {SCENE_CONFIG.map((s, i) => (
                 <div key={i} className="flex items-center gap-2">
                   <div
-                    className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-black border-2 transition-all duration-700"
+                    className="w-7 h-7 md:w-8 md:h-8 rounded-full flex items-center justify-center text-[10px] md:text-xs font-black border-2 transition-all duration-700"
                     style={{
-                      borderColor: i <= sceneIndex ? scene.accent : 'rgba(255,255,255,0.1)',
+                      borderColor: i <= sceneIndex ? scene.accent : 'rgba(255,255,255,0.08)',
                       backgroundColor: i <= sceneIndex ? scene.accentBg : 'transparent',
-                      color: i <= sceneIndex ? scene.accent : 'rgba(255,255,255,0.2)',
+                      color: i <= sceneIndex ? scene.accent : 'rgba(255,255,255,0.15)',
                     }}
                   >
                     {s.number}
                   </div>
                   {i < 2 && (
                     <div
-                      className="w-12 md:w-20 h-[2px] rounded-full transition-all duration-700"
+                      className="w-6 md:w-14 h-[2px] rounded-full transition-all duration-700"
                       style={{
-                        backgroundColor: i < sceneIndex ? scene.accent : 'rgba(255,255,255,0.08)',
+                        backgroundColor: i < sceneIndex ? scene.accent : 'rgba(255,255,255,0.06)',
                       }}
                     />
                   )}
                 </div>
               ))}
             </div>
+            <span className="text-white/15 text-[10px] md:text-xs uppercase tracking-[0.3em] font-bold">
+              {item.category}
+            </span>
+          </div>
 
-            {/* Scene label with accent bar */}
+          {/* Main content — stacked: image top, text center */}
+          <div className="flex-1 flex flex-col min-h-0 px-6 md:px-16 pb-6 md:pb-10">
+
+            {/* Image — large, prominent */}
             <motion.div
-              initial={{ x: -30, opacity: 0 }}
-              animate={{ x: 0, opacity: 1 }}
-              transition={{ delay: 0.15, duration: 0.5 }}
-              className="flex items-center gap-4 mb-8"
+              initial={{ opacity: 0, scale: 0.96 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.1, duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+              className="w-full shrink-0"
             >
               <div
-                className="w-1 h-10 rounded-full"
-                style={{ backgroundColor: scene.accent }}
-              />
-              <div>
-                <span
-                  className="text-sm md:text-base font-black uppercase tracking-[0.3em] block"
-                  style={{ color: scene.accent }}
+                className="relative w-full h-[280px] md:h-[340px] rounded-2xl md:rounded-3xl overflow-hidden"
+                style={{
+                  boxShadow: `0 12px 48px rgba(0,0,0,0.6), 0 0 0 1px ${scene.accent}12`,
+                }}
+              >
+                <motion.img
+                  key={`img-${sceneIndex}`}
+                  initial={{ scale: 1.08, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  transition={{ duration: 1.2, ease: 'easeOut' }}
+                  src={currentImage}
+                  alt={`${item.title} — ${scene.label}`}
+                  className="w-full h-full object-cover"
+                />
+                <div
+                  className="absolute inset-0 pointer-events-none"
+                  style={{
+                    background: `linear-gradient(180deg, transparent 50%, rgba(10,10,10,0.6) 100%)`,
+                  }}
+                />
+                {/* Scene number badge */}
+                <div
+                  className="absolute top-4 left-4 md:top-5 md:left-5 w-8 h-8 md:w-9 md:h-9 rounded-full flex items-center justify-center text-[11px] md:text-xs font-black"
+                  style={{
+                    backgroundColor: `${scene.accent}25`,
+                    color: scene.accent,
+                    backdropFilter: 'blur(12px)',
+                    WebkitBackdropFilter: 'blur(12px)',
+                    border: `1px solid ${scene.accent}30`,
+                  }}
                 >
-                  {scene.label}
-                </span>
-                <span className="text-white/25 text-[10px] md:text-xs uppercase tracking-widest font-bold">
-                  {scene.sublabel}
-                </span>
+                  {scene.number}
+                </div>
+                {/* Scene label overlay on image bottom */}
+                <div className="absolute bottom-0 left-0 right-0 px-5 pb-4 md:px-6 md:pb-5">
+                  <span
+                    className="text-[10px] md:text-xs font-black uppercase tracking-[0.3em]"
+                    style={{ color: scene.accent }}
+                  >
+                    {scene.label}
+                  </span>
+                </div>
               </div>
             </motion.div>
 
-            {/* Title */}
+            {/* Title — centered */}
             <motion.div
-              initial={{ y: 20, opacity: 0 }}
+              initial={{ y: 12, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
-              transition={{ delay: 0.25, duration: 0.6 }}
-              className="mb-8"
+              transition={{ delay: 0.2, duration: 0.6 }}
+              className="text-center mt-12 md:mt-16 mb-4 md:mb-6"
             >
-              <h2 className="text-4xl md:text-6xl font-black italic uppercase tracking-tight leading-[0.9]">
+              <h2 className="text-2xl md:text-4xl font-black italic uppercase tracking-tight leading-[0.9] pt-9">
                 {item.title}
               </h2>
-              <p className="text-white/20 text-base md:text-lg italic font-bold mt-2">
+              <p className="text-white/20 text-base md:text-lg italic font-bold pt-3">
                 &ldquo;{item.subtitle}&rdquo;
               </p>
             </motion.div>
 
-            {/* Narrative text — spotlight reveal */}
-            <div className="flex-1 flex flex-col justify-center mb-6">
+            {/* Narrative text — centered, no card, generous padding */}
+            <div className="flex-1 flex flex-col justify-center min-h-0 px-4 md:px-20">
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.3, duration: 0.6 }}
-                className="relative max-w-xl rounded-lg overflow-hidden"
               >
-                {/* Glass card background */}
-                <div
-                  className="absolute inset-0 rounded-lg"
-                  style={{
-                    background: `linear-gradient(135deg, ${scene.accent}08, rgba(255,255,255,0.02), ${scene.accent}05)`,
-                    backdropFilter: 'blur(12px)',
-                    WebkitBackdropFilter: 'blur(12px)',
-                    border: `1px solid ${scene.accent}15`,
-                  }}
+                <NarrativeText
+                  key={sceneIndex}
+                  lines={lines}
+                  accent={scene.accent}
+                  onAllRevealed={() => setShowActions(true)}
                 />
-
-                <div className="relative p-5 md:p-8">
-                  {/* Accent glow dot */}
-                  <motion.div
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    transition={{ delay: 0.4, type: 'spring' }}
-                    className="w-2 h-2 rounded-full mb-4"
-                    style={{
-                      backgroundColor: scene.accent,
-                      boxShadow: `0 0 12px ${scene.accent}80, 0 0 30px ${scene.accent}40`,
-                    }}
-                  />
-
-                  <NarrativeText
-                    key={sceneIndex}
-                    lines={lines}
-                    accent={scene.accent}
-                    onAllRevealed={() => setShowActions(true)}
-                  />
-
-                  {/* Bottom accent line */}
-                  <AnimatePresence>
-                    {showActions && (
-                      <motion.div
-                        initial={{ scaleX: 0 }}
-                        animate={{ scaleX: 1 }}
-                        transition={{ duration: 0.8 }}
-                        className="h-[1px] mt-4 origin-left"
-                        style={{
-                          background: `linear-gradient(to right, ${scene.accent}60, transparent)`,
-                        }}
-                      />
-                    )}
-                  </AnimatePresence>
-                </div>
               </motion.div>
             </div>
 
-            {/* Bottom actions — appear after all lines revealed */}
+            {/* Actions */}
             <AnimatePresence>
               {showActions && (
                 <motion.div
-                  initial={{ y: 20, opacity: 0 }}
+                  initial={{ y: 12, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
                   transition={{ duration: 0.5 }}
-                  className="flex items-center justify-between"
+                  className="flex items-center justify-center gap-4 pt-4 md:pt-5"
                 >
-              <div className="flex items-center gap-3">
-                <div
-                  className="w-2 h-2 rounded-full"
-                  style={{ backgroundColor: scene.accent }}
-                />
-                <span className="text-white/20 text-xs uppercase tracking-widest font-bold">
-                  {item.category}
-                </span>
-              </div>
-
-              {isLastScene ? (
-                <button
-                  onClick={onReset}
-                  className="px-10 py-4 text-black font-black uppercase italic tracking-widest transition-all cursor-pointer text-sm rounded-sm"
-                  style={{
-                    background: 'linear-gradient(135deg, #c5a059, #e8c878)',
-                    boxShadow: '0 4px 20px rgba(197,160,89,0.3)',
-                  }}
-                  aria-label="Spin again"
-                >
-                  Spin Again
-                </button>
-              ) : (
-                <button
-                  onClick={onNext}
-                  className="px-8 py-4 border text-white font-black uppercase italic tracking-widest hover:bg-white/5 transition-all cursor-pointer group text-sm backdrop-blur-md rounded-sm"
-                  style={{ borderColor: `${scene.accent}40` }}
-                  aria-label="Continue to next scene"
-                >
-                  Continue
-                  <span className="inline-block ml-2 group-hover:translate-x-1 transition-transform">
-                    →
-                  </span>
-                </button>
-              )}
-            </motion.div>
+                  {isLastScene ? (
+                    <button
+                      onClick={onReset}
+                      className="px-8 md:px-10 py-3 md:py-3.5 text-black font-black uppercase italic tracking-widest transition-all cursor-pointer text-xs md:text-sm rounded-xl"
+                      style={{
+                        background: 'linear-gradient(135deg, #c5a059, #e8c878)',
+                        boxShadow: '0 4px 24px rgba(197,160,89,0.3)',
+                      }}
+                      aria-label="Spin again"
+                    >
+                      Spin Again
+                    </button>
+                  ) : (
+                    <button
+                      onClick={onNext}
+                      className="p-4 font-black uppercase italic tracking-widest transition-all cursor-pointer group text-xs md:text-sm rounded-2xl"
+                      style={{
+                        backgroundColor: '#fbae09',
+                        color: '#000',
+                        boxShadow: '0 4px 24px rgba(251,174,9,0.3)',
+                      }}
+                      aria-label="Continue to next scene"
+                    >
+                      Continue
+                      <span className="inline-block ml-2 group-hover:translate-x-1 transition-transform">
+                        &rarr;
+                      </span>
+                    </button>
+                  )}
+                </motion.div>
               )}
             </AnimatePresence>
-          </div>
-
-          {/* Right-side image peek (desktop only) */}
-          <div className="hidden md:block absolute right-0 top-0 bottom-0 w-[45%] z-5 pointer-events-none">
-            <motion.img
-              key={`peek-${sceneIndex}`}
-              initial={{ opacity: 0, x: 40 }}
-              animate={{ opacity: 0.7, x: 0 }}
-              transition={{ duration: 1.2, delay: 0.3, ease: 'easeOut' }}
-              src={currentImage}
-              alt=""
-              className="w-full h-full object-cover"
-              style={{
-                maskImage: 'linear-gradient(to right, transparent 0%, black 30%)',
-                WebkitMaskImage: 'linear-gradient(to right, transparent 0%, black 30%)',
-              }}
-            />
           </div>
         </motion.div>
       </AnimatePresence>
