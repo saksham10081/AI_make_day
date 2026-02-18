@@ -134,15 +134,74 @@ const SCENE_CONFIG = [
   },
 ];
 
-// Stagger animation for text lines
-const lineVariants = {
-  hidden: { opacity: 0, x: -10, filter: 'blur(4px)' },
-  visible: (i) => ({
-    opacity: 1,
-    x: 0,
-    filter: 'blur(0px)',
-    transition: { delay: 0.5 + i * 0.18, duration: 0.6, ease: [0.25, 1, 0.5, 1] },
-  }),
+const LINE_INTERVAL = 1200;
+
+const NarrativeText = ({ lines, accent, onAllRevealed }) => {
+  const [activeIndex, setActiveIndex] = useState(-1);
+  const totalLines = lines.length;
+
+  useEffect(() => {
+    setActiveIndex(-1);
+    const timers = lines.map((_, i) =>
+      setTimeout(() => {
+        setActiveIndex(i);
+        if (i === totalLines - 1 && onAllRevealed) {
+          setTimeout(onAllRevealed, 600);
+        }
+      }, 500 + i * LINE_INTERVAL)
+    );
+    return () => timers.forEach(clearTimeout);
+  }, [lines, totalLines, onAllRevealed]);
+
+  return (
+    <div className="space-y-1">
+      {lines.map((line, i) => {
+        const isVisible = i <= activeIndex;
+        const isActive = i === activeIndex;
+        const isPast = i < activeIndex;
+        const isQuote = line.startsWith('"') || line.startsWith('\u201C');
+
+        return (
+          <motion.div
+            key={i}
+            initial={{ opacity: 0, y: 16, filter: 'blur(8px)' }}
+            animate={isVisible ? {
+              opacity: isActive ? 1 : isPast ? 0.4 : 0,
+              y: 0,
+              filter: 'blur(0px)',
+              scale: isActive ? 1 : 0.97,
+            } : { opacity: 0, y: 16, filter: 'blur(8px)' }}
+            transition={{
+              duration: 0.6,
+              ease: [0.22, 1, 0.36, 1],
+            }}
+            className={`origin-left ${isQuote && isActive ? 'pl-4' : ''}`}
+            style={{
+              ...(isQuote && isActive ? {
+                borderLeft: `2px solid ${accent}60`,
+              } : {}),
+            }}
+          >
+            <p
+              className={`transition-all duration-500 ${
+                isActive
+                  ? 'text-lg md:text-2xl font-bold text-white leading-snug'
+                  : isPast
+                    ? 'text-xs md:text-sm font-medium text-white/35 leading-relaxed'
+                    : 'text-base font-medium text-white/60'
+              }`}
+              style={{
+                textShadow: isActive ? '0 2px 16px rgba(0,0,0,0.7)' : 'none',
+                ...(isQuote && isActive ? { color: accent } : {}),
+              }}
+            >
+              {line}
+            </p>
+          </motion.div>
+        );
+      })}
+    </div>
+  );
 };
 
 // ============================================================
@@ -179,23 +238,23 @@ const LandingStage = ({ onSpin }) => (
     animate={{ opacity: 1 }}
     exit={{ opacity: 0, scale: 0.95 }}
     transition={{ duration: 0.5 }}
-    className="flex-1 flex flex-col items-center justify-center p-6 text-center relative overflow-hidden"
+    className="flex-1 flex flex-col items-center justify-center p-4 md:p-6 text-center"
   >
     <motion.div
       initial={{ y: -20, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
-      className="mb-4 px-4 py-1 rounded-full border border-yellow-600/30 bg-yellow-900/10 text-yellow-500 text-[10px] tracking-[0.4em] uppercase font-bold"
+      className="mb-3 md:mb-4 px-4 py-1 rounded-full border border-yellow-600/30 bg-yellow-900/10 text-yellow-500 text-[10px] tracking-[0.4em] uppercase font-bold"
     >
       The Indian What-If Engine
     </motion.div>
 
-    <h1 className="text-7xl md:text-[140px] font-black mb-12 tracking-tighter uppercase italic leading-[0.8] drop-shadow-[0_10px_10px_rgba(0,0,0,0.5)]">
+    <h1 className="text-4xl md:text-[140px] font-black mb-4 md:mb-10 tracking-tighter uppercase italic leading-[0.8] drop-shadow-[0_10px_10px_rgba(0,0,0,0.5)]">
       REGRET <br /> ROULETTE
     </h1>
 
-    {/* Ornate wheel */}
+    {/* Ornate wheel — contained in a fixed box so gears don't overflow */}
     <div
-      className="relative group cursor-pointer"
+      className="relative group cursor-pointer w-[200px] h-[200px] md:w-[380px] md:h-[380px] flex items-center justify-center shrink-0"
       onClick={onSpin}
       onKeyDown={(e) => {
         if (e.key === 'Enter' || e.key === ' ') onSpin();
@@ -204,36 +263,32 @@ const LandingStage = ({ onSpin }) => (
       role="button"
       aria-label="Spin the roulette wheel"
     >
-      {/* Outer decorative ring with studs */}
-      <div className="absolute -inset-5 rounded-full border-[3px] border-[#c5a059]/20" />
-      <div className="absolute -inset-3 rounded-full border-[1px] border-[#c5a059]/10" />
-
-      {/* Decorative corner gears */}
+      {/* Decorative corner gears — positioned relative to container */}
       <motion.div
         animate={{ rotate: 360 }}
         transition={{ repeat: Infinity, duration: 20, ease: 'linear' }}
-        className="absolute -top-8 -left-8 opacity-30"
+        className="absolute top-0 left-0 opacity-25 hidden md:block"
       >
         <GearSVG size={50} />
       </motion.div>
       <motion.div
         animate={{ rotate: -360 }}
         transition={{ repeat: Infinity, duration: 25, ease: 'linear' }}
-        className="absolute -top-6 -right-6 opacity-20"
+        className="absolute top-0 right-0 opacity-20 hidden md:block"
       >
         <GearSVG size={40} />
       </motion.div>
       <motion.div
         animate={{ rotate: 360 }}
         transition={{ repeat: Infinity, duration: 30, ease: 'linear' }}
-        className="absolute -bottom-6 -left-6 opacity-20"
+        className="absolute bottom-0 left-0 opacity-20 hidden md:block"
       >
         <GearSVG size={40} />
       </motion.div>
       <motion.div
         animate={{ rotate: -360 }}
         transition={{ repeat: Infinity, duration: 22, ease: 'linear' }}
-        className="absolute -bottom-8 -right-8 opacity-30"
+        className="absolute bottom-0 right-0 opacity-25 hidden md:block"
       >
         <GearSVG size={50} />
       </motion.div>
@@ -241,21 +296,11 @@ const LandingStage = ({ onSpin }) => (
       <motion.div
         whileHover={{ scale: 1.02 }}
         whileTap={{ scale: 0.98 }}
-        className="w-72 h-72 md:w-[340px] md:h-[340px] rounded-full relative flex items-center justify-center overflow-hidden"
+        className="w-[170px] h-[170px] md:w-[300px] md:h-[300px] rounded-full relative flex items-center justify-center overflow-hidden"
         style={{
-          border: '14px solid transparent',
-          backgroundClip: 'padding-box',
-          boxShadow: '0 0 80px rgba(197,160,89,0.15), inset 0 0 40px rgba(0,0,0,0.8), 0 0 0 14px #1a1408, 0 0 0 17px #c5a059, 0 0 0 20px #1a1408',
+          boxShadow: '0 0 60px rgba(197,160,89,0.15), inset 0 0 30px rgba(0,0,0,0.8), 0 0 0 8px #1a1408, 0 0 0 10px #c5a059, 0 0 0 13px #1a1408',
         }}
       >
-        {/* Metallic ring texture */}
-        <div
-          className="absolute inset-0 rounded-full"
-          style={{
-            background: 'radial-gradient(circle at 30% 30%, rgba(197,160,89,0.1) 0%, transparent 50%)',
-          }}
-        />
-
         {/* Slow spinning decorative ring */}
         <div className="w-full h-full absolute animate-[spin_60s_linear_infinite]">
           {[...Array(24)].map((_, i) => (
@@ -276,7 +321,7 @@ const LandingStage = ({ onSpin }) => (
         <div
           className="absolute rounded-full"
           style={{
-            inset: '20px',
+            inset: '14px',
             background: wheelGradient,
             boxShadow: 'inset 0 0 20px rgba(0,0,0,0.6)',
           }}
@@ -292,52 +337,40 @@ const LandingStage = ({ onSpin }) => (
           ))}
         </div>
 
-        {/* Inner decorative ring */}
-        <div
-          className="absolute rounded-full border-[2px] border-[#c5a059]/40"
-          style={{ inset: '18px' }}
-        />
-        <div
-          className="absolute rounded-full border-[1px] border-[#c5a059]/20"
-          style={{ inset: '50px' }}
-        />
-
-        {/* Center hub with layered metallic look */}
-        <div className="z-10 w-28 h-28 md:w-32 md:h-32 rounded-full relative flex flex-col items-center justify-center"
+        {/* Center hub */}
+        <div className="z-10 w-16 h-16 md:w-28 md:h-28 rounded-full relative flex flex-col items-center justify-center"
           style={{
             background: 'radial-gradient(circle at 35% 35%, #3a3a3a, #0a0a0a)',
-            boxShadow: '0 0 30px rgba(197,160,89,0.4), 0 0 0 4px #c5a059, 0 0 0 6px #1a1408, 0 0 0 8px rgba(197,160,89,0.3)',
+            boxShadow: '0 0 20px rgba(197,160,89,0.4), 0 0 0 3px #c5a059, 0 0 0 5px #1a1408',
           }}
         >
-          {/* Inner gear decoration */}
           <motion.div
             animate={{ rotate: -360 }}
             transition={{ repeat: Infinity, duration: 40, ease: 'linear' }}
-            className="absolute inset-2 opacity-20"
+            className="absolute inset-1 opacity-20"
           >
             <GearSVG size={100} className="w-full h-full" />
           </motion.div>
 
-          {/* Pointer notch at top */}
           <div
-            className="absolute -top-7 left-1/2 -translate-x-1/2 w-3 h-6 rounded-b-full z-20"
+            className="absolute -top-4 md:-top-6 left-1/2 -translate-x-1/2 w-2 h-3 md:w-3 md:h-5 rounded-b-full z-20"
             style={{
               background: 'linear-gradient(to bottom, #c5a059, #8B6914)',
               boxShadow: '0 4px 12px rgba(197,160,89,0.5)',
             }}
           />
 
-          <span className="text-[#c5a059] font-black italic text-2xl tracking-tighter z-10 drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
+          <span className="text-[#c5a059] font-black italic text-base md:text-2xl tracking-tighter z-10 drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
             SPIN
           </span>
-          <span className="text-[#c5a059]/40 text-[8px] uppercase tracking-[0.3em] font-bold mt-1 z-10">
+          <span className="text-[#c5a059]/40 text-[6px] md:text-[8px] uppercase tracking-[0.2em] md:tracking-[0.3em] font-bold z-10">
             Your Fate
           </span>
         </div>
       </motion.div>
     </div>
 
-    <p className="mt-12 text-neutral-600 tracking-[0.4em] uppercase text-[10px] font-black animate-pulse">
+    <p className="mt-4 md:mt-10 text-neutral-600 tracking-[0.4em] uppercase text-[10px] font-black animate-pulse">
       Place your bet on a better life
     </p>
   </motion.div>
@@ -364,106 +397,75 @@ const SpinningStage = ({ targetRotation, item, onComplete }) => {
     >
       {/* Background ambient glow */}
       <div
-        className="absolute inset-0 opacity-20"
+        className="absolute inset-0 opacity-20 pointer-events-none"
         style={{
           background: 'radial-gradient(circle at 50% 40%, rgba(197,160,89,0.3) 0%, transparent 60%)',
         }}
       />
 
-      <div className="relative" style={{ width: 340, height: 340 }}>
-        {/* Ornate pointer at top */}
-        <div className="absolute -top-8 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center">
-          <div
-            className="w-0 h-0"
-            style={{
-              borderLeft: '16px solid transparent',
-              borderRight: '16px solid transparent',
-              borderTop: '32px solid #c5a059',
-              filter: 'drop-shadow(0 4px 12px rgba(197,160,89,0.6))',
-            }}
-          />
-          <div className="w-1 h-2 bg-[#c5a059] rounded-b-sm" />
-        </div>
-
-        {/* Outer decorative ring */}
-        <div
-          className="absolute -inset-4 rounded-full"
-          style={{
-            border: '3px solid transparent',
-            boxShadow: '0 0 0 3px #1a1408, 0 0 0 5px #c5a059, 0 0 0 8px #1a1408, 0 0 60px rgba(197,160,89,0.15)',
-          }}
-        />
-
-        {/* Spinning wheel */}
-        <motion.div
-          className="w-full h-full rounded-full overflow-hidden relative"
-          style={{
-            background: wheelGradient,
-            boxShadow: 'inset 0 0 30px rgba(0,0,0,0.7), 0 0 0 10px #1a1408, 0 0 0 13px #c5a059',
-          }}
-          animate={{ rotate: targetRotation }}
-          transition={{ duration: 4.5, ease: [0.12, 0.82, 0.18, 1] }}
-        >
-          {/* Segment dividers */}
-          {WHEEL_ITEMS.map((_, i) => (
+      {/* Wheel + text in a tight flex column */}
+      <div className="flex flex-col items-center">
+        <div className="relative w-[200px] h-[200px] md:w-[320px] md:h-[320px] shrink-0">
+          {/* Ornate pointer at top */}
+          <div className="absolute -top-5 md:-top-7 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center">
             <div
-              key={i}
-              className="absolute top-0 left-1/2 w-[1px] h-1/2 origin-bottom bg-black/50"
+              className="w-0 h-0"
               style={{
-                transform: `translateX(-50%) rotate(${i * SEGMENT_ANGLE}deg)`,
+                borderLeft: '10px solid transparent',
+                borderRight: '10px solid transparent',
+                borderTop: '20px solid #c5a059',
+                filter: 'drop-shadow(0 4px 12px rgba(197,160,89,0.6))',
               }}
             />
-          ))}
+          </div>
 
-          {/* Inner decorative ring */}
-          <div
-            className="absolute rounded-full border-[2px] border-black/30"
-            style={{ inset: '25%' }}
-          />
-
-          {/* Icons on segments */}
-          {WHEEL_ITEMS.map((item, i) => {
-            const midAngle = ((i + 0.5) * SEGMENT_ANGLE - 90) * (Math.PI / 180);
-            const radius = 120;
-            const x = 170 + radius * Math.cos(midAngle);
-            const y = 170 + radius * Math.sin(midAngle);
-            return (
-              <span
-                key={`icon-${i}`}
-                className="absolute text-sm drop-shadow-lg"
+          {/* Spinning wheel */}
+          <motion.div
+            className="w-full h-full rounded-full overflow-hidden relative"
+            style={{
+              background: wheelGradient,
+              boxShadow: 'inset 0 0 30px rgba(0,0,0,0.7), 0 0 0 6px #1a1408, 0 0 0 8px #c5a059, 0 0 0 11px #1a1408',
+            }}
+            animate={{ rotate: targetRotation }}
+            transition={{ duration: 4.5, ease: [0.12, 0.82, 0.18, 1] }}
+          >
+            {WHEEL_ITEMS.map((_, i) => (
+              <div
+                key={i}
+                className="absolute top-0 left-1/2 w-[1px] h-1/2 origin-bottom bg-black/50"
                 style={{
-                  left: x,
-                  top: y,
-                  transform: 'translate(-50%, -50%)',
-                  fontSize: '14px',
+                  transform: `translateX(-50%) rotate(${i * SEGMENT_ANGLE}deg)`,
                 }}
-              >
-                {item.wheelIcon}
-              </span>
-            );
-          })}
-        </motion.div>
+              />
+            ))}
 
-        {/* Center hub */}
-        <div
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10 w-24 h-24 rounded-full flex items-center justify-center"
-          style={{
-            background: 'radial-gradient(circle at 35% 35%, #2a2a2a, #050505)',
-            boxShadow: '0 0 30px rgba(197,160,89,0.4), 0 0 0 4px #c5a059, 0 0 0 6px #1a1408, 0 0 0 8px rgba(197,160,89,0.3)',
-          }}
-        >
-          <span className="text-[#c5a059] font-black italic text-3xl">₹</span>
+            <div
+              className="absolute rounded-full border-[2px] border-black/30"
+              style={{ inset: '25%' }}
+            />
+          </motion.div>
+
+          {/* Center hub */}
+          <div
+            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10 w-14 h-14 md:w-20 md:h-20 rounded-full flex items-center justify-center"
+            style={{
+              background: 'radial-gradient(circle at 35% 35%, #2a2a2a, #050505)',
+              boxShadow: '0 0 20px rgba(197,160,89,0.4), 0 0 0 3px #c5a059, 0 0 0 5px #1a1408',
+            }}
+          >
+            <span className="text-[#c5a059] font-black italic text-xl md:text-3xl">₹</span>
+          </div>
         </div>
-      </div>
 
-      <motion.p
-        initial={{ opacity: 0 }}
-        animate={{ opacity: [0.3, 1, 0.3] }}
-        transition={{ repeat: Infinity, duration: 1.5 }}
-        className="mt-16 font-mono text-[#c5a059]/50 uppercase tracking-[0.5em] text-[11px] font-bold"
-      >
-        Fate is deciding...
-      </motion.p>
+        <motion.p
+          initial={{ opacity: 0 }}
+          animate={{ opacity: [0.3, 1, 0.3] }}
+          transition={{ repeat: Infinity, duration: 1.5 }}
+          className="mt-6 md:mt-12 font-mono text-[#c5a059]/50 uppercase tracking-[0.5em] text-[11px] font-bold"
+        >
+          Fate is deciding...
+        </motion.p>
+      </div>
 
       <AnimatePresence>
         {showResult && (
@@ -522,6 +524,11 @@ const StoryboardStage = ({ item, sceneIndex, onNext, onReset }) => {
   const currentText = item.texts?.[sceneIndex] || '';
   const lines = currentText.split('\n');
   const isLastScene = sceneIndex === 2;
+  const [showActions, setShowActions] = useState(false);
+
+  useEffect(() => {
+    setShowActions(false);
+  }, [sceneIndex]);
 
   return (
     <motion.div
@@ -620,12 +627,12 @@ const StoryboardStage = ({ item, sceneIndex, onNext, onReset }) => {
               </p>
             </motion.div>
 
-            {/* Narrative text — cinematic reveal */}
-            <div className="flex-1 flex flex-col justify-center mb-8">
+            {/* Narrative text — spotlight reveal */}
+            <div className="flex-1 flex flex-col justify-center mb-6">
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                transition={{ delay: 0.4, duration: 0.8 }}
+                transition={{ delay: 0.3, duration: 0.6 }}
                 className="relative max-w-xl rounded-lg overflow-hidden"
               >
                 {/* Glass card background */}
@@ -639,68 +646,53 @@ const StoryboardStage = ({ item, sceneIndex, onNext, onReset }) => {
                   }}
                 />
 
-                <div className="relative p-6 md:p-8">
+                <div className="relative p-5 md:p-8">
                   {/* Accent glow dot */}
                   <motion.div
                     initial={{ scale: 0 }}
                     animate={{ scale: 1 }}
-                    transition={{ delay: 0.5, type: 'spring' }}
-                    className="w-2 h-2 rounded-full mb-5"
+                    transition={{ delay: 0.4, type: 'spring' }}
+                    className="w-2 h-2 rounded-full mb-4"
                     style={{
                       backgroundColor: scene.accent,
                       boxShadow: `0 0 12px ${scene.accent}80, 0 0 30px ${scene.accent}40`,
                     }}
                   />
 
-                  {lines.map((line, i) => {
-                    const isFirstLine = i === 0;
-                    const isQuote = line.startsWith('"') || line.startsWith('\u201C');
-
-                    return (
-                      <motion.p
-                        key={i}
-                        custom={i}
-                        initial="hidden"
-                        animate="visible"
-                        variants={lineVariants}
-                        className={`mb-2 ${
-                          isFirstLine
-                            ? 'text-xl md:text-2xl font-bold text-white/95 leading-snug'
-                            : isQuote
-                              ? 'text-base md:text-lg italic font-semibold leading-relaxed pl-4'
-                              : 'text-base md:text-lg font-medium text-white/65 leading-relaxed'
-                        }`}
-                        style={{
-                          textShadow: '0 2px 12px rgba(0,0,0,0.6)',
-                          ...(isQuote ? { color: scene.accent, borderLeft: `2px solid ${scene.accent}50`, } : {}),
-                        }}
-                      >
-                        {line}
-                      </motion.p>
-                    );
-                  })}
+                  <NarrativeText
+                    key={sceneIndex}
+                    lines={lines}
+                    accent={scene.accent}
+                    onAllRevealed={() => setShowActions(true)}
+                  />
 
                   {/* Bottom accent line */}
-                  <motion.div
-                    initial={{ scaleX: 0 }}
-                    animate={{ scaleX: 1 }}
-                    transition={{ delay: 0.5 + lines.length * 0.18, duration: 0.8 }}
-                    className="h-[1px] mt-4 origin-left"
-                    style={{
-                      background: `linear-gradient(to right, ${scene.accent}60, transparent)`,
-                    }}
-                  />
+                  <AnimatePresence>
+                    {showActions && (
+                      <motion.div
+                        initial={{ scaleX: 0 }}
+                        animate={{ scaleX: 1 }}
+                        transition={{ duration: 0.8 }}
+                        className="h-[1px] mt-4 origin-left"
+                        style={{
+                          background: `linear-gradient(to right, ${scene.accent}60, transparent)`,
+                        }}
+                      />
+                    )}
+                  </AnimatePresence>
                 </div>
               </motion.div>
             </div>
 
-            {/* Bottom actions */}
-            <motion.div
-              initial={{ y: 20, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ delay: 0.8 }}
-              className="flex items-center justify-between"
-            >
+            {/* Bottom actions — appear after all lines revealed */}
+            <AnimatePresence>
+              {showActions && (
+                <motion.div
+                  initial={{ y: 20, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  transition={{ duration: 0.5 }}
+                  className="flex items-center justify-between"
+                >
               <div className="flex items-center gap-3">
                 <div
                   className="w-2 h-2 rounded-full"
@@ -737,6 +729,8 @@ const StoryboardStage = ({ item, sceneIndex, onNext, onReset }) => {
                 </button>
               )}
             </motion.div>
+              )}
+            </AnimatePresence>
           </div>
 
           {/* Right-side image peek (desktop only) */}
