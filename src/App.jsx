@@ -247,7 +247,6 @@ const LandingStage = ({ onSpin }) => (
       REGRET <br /> ROULETTE
     </h1>
 
-    {/* Ornate wheel — contained in a fixed box so gears don't overflow */}
     <div
       className="relative group cursor-pointer w-[200px] h-[200px] md:w-[380px] md:h-[380px] flex items-center justify-center shrink-0"
       onClick={onSpin}
@@ -258,7 +257,6 @@ const LandingStage = ({ onSpin }) => (
       role="button"
       aria-label="Spin the roulette wheel"
     >
-      {/* Decorative corner gears — positioned relative to container */}
       <motion.div
         animate={{ rotate: 360 }}
         transition={{ repeat: Infinity, duration: 20, ease: 'linear' }}
@@ -296,7 +294,6 @@ const LandingStage = ({ onSpin }) => (
           boxShadow: '0 0 60px rgba(197,160,89,0.15), inset 0 0 30px rgba(0,0,0,0.8), 0 0 0 8px #1a1408, 0 0 0 10px #c5a059, 0 0 0 13px #1a1408',
         }}
       >
-        {/* Slow spinning decorative ring */}
         <div className="w-full h-full absolute animate-[spin_60s_linear_infinite]">
           {[...Array(24)].map((_, i) => (
             <div
@@ -312,7 +309,6 @@ const LandingStage = ({ onSpin }) => (
           ))}
         </div>
 
-        {/* Inner colored segments ring */}
         <div
           className="absolute rounded-full"
           style={{
@@ -332,7 +328,6 @@ const LandingStage = ({ onSpin }) => (
           ))}
         </div>
 
-        {/* Center hub */}
         <div className="z-10 w-16 h-16 md:w-28 md:h-28 rounded-full relative flex flex-col items-center justify-center"
           style={{
             background: 'radial-gradient(circle at 35% 35%, #3a3a3a, #0a0a0a)',
@@ -390,7 +385,6 @@ const SpinningStage = ({ targetRotation, item, onComplete }) => {
       exit={{ opacity: 0 }}
       className="flex-1 flex flex-col items-center justify-center bg-black relative overflow-hidden"
     >
-      {/* Background ambient glow */}
       <div
         className="absolute inset-0 opacity-20 pointer-events-none"
         style={{
@@ -398,10 +392,8 @@ const SpinningStage = ({ targetRotation, item, onComplete }) => {
         }}
       />
 
-      {/* Wheel + text in a tight flex column */}
       <div className="flex flex-col items-center">
         <div className="relative w-[200px] h-[200px] md:w-[320px] md:h-[320px] shrink-0">
-          {/* Ornate pointer at top */}
           <div className="absolute -top-5 md:-top-7 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center">
             <div
               className="w-0 h-0"
@@ -414,7 +406,6 @@ const SpinningStage = ({ targetRotation, item, onComplete }) => {
             />
           </div>
 
-          {/* Spinning wheel */}
           <motion.div
             className="w-full h-full rounded-full overflow-hidden relative"
             style={{
@@ -440,7 +431,6 @@ const SpinningStage = ({ targetRotation, item, onComplete }) => {
             />
           </motion.div>
 
-          {/* Center hub */}
           <div
             className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10 w-14 h-14 md:w-20 md:h-20 rounded-full flex items-center justify-center"
             style={{
@@ -673,15 +663,17 @@ const StoryboardStage = ({ item, sceneIndex, onNext, onReset }) => {
                   initial={{ y: 12, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
                   transition={{ duration: 0.5 }}
-                  className="flex items-center justify-center gap-4 pt-4 md:pt-5"
+                  className="flex items-center justify-center gap-4 pt-6 pb-14 md:pt-8 md:pb-16"
                 >
                   {isLastScene ? (
                     <button
                       onClick={onReset}
-                      className="px-8 md:px-10 py-3 md:py-3.5 text-black font-black uppercase italic tracking-widest transition-all cursor-pointer text-xs md:text-sm rounded-xl"
+                      className="text-black font-black uppercase italic tracking-widest transition-all cursor-pointer text-xs md:text-sm"
                       style={{
-                        background: 'linear-gradient(135deg, #c5a059, #e8c878)',
-                        boxShadow: '0 4px 24px rgba(197,160,89,0.3)',
+                        padding: '16px 23px',
+                        borderRadius: '16px',
+                        background: 'linear-gradient(135deg, #e2a808, #e8c878)',
+                        boxShadow: '0 4px 24px rgba(226,168,8,0.3)',
                       }}
                       aria-label="Spin again"
                     >
@@ -690,11 +682,13 @@ const StoryboardStage = ({ item, sceneIndex, onNext, onReset }) => {
                   ) : (
                     <button
                       onClick={onNext}
-                      className="p-4 font-black uppercase italic tracking-widest transition-all cursor-pointer group text-xs md:text-sm rounded-2xl"
+                      className="font-black uppercase italic tracking-widest transition-all cursor-pointer group text-xs md:text-sm"
                       style={{
-                        backgroundColor: '#fbae09',
+                        padding: '16px 23px',
+                        borderRadius: '16px',
+                        backgroundColor: '#e2a808',
                         color: '#000',
-                        boxShadow: '0 4px 24px rgba(251,174,9,0.3)',
+                        boxShadow: '0 4px 24px rgba(226,168,8,0.3)',
                       }}
                       aria-label="Continue to next scene"
                     >
