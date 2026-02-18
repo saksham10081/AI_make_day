@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 const apiKey = import.meta.env.VITE_GEMINI_API_KEY || "";
 
-// --- DATASET: ICONIC INDIAN REGRETS (with storyboard narratives + video prompts) ---
+// --- DATASET: ICONIC INDIAN REGRETS (with per-scene image prompts) ---
 const REGRET_DATA = [
   {
     id: 'rel_blr_01',
@@ -11,14 +11,11 @@ const REGRET_DATA = [
     year: "2004",
     category: "Real Estate",
     wheelColor: '#8B6914',
-    opportunity:
-      "A marshy 2400 sq.ft plot in East Bangalore was going for ₹4 Lakhs. Everyone laughed — called it a swamp. Your cousin begged you to split the cost. You said no. Bought a Pulsar 180 instead.",
-    dreamLife:
-      "You own a ₹15 Crore property on the Outer Ring Road tech corridor. You retired at 40. Filter coffee on a penthouse balcony every morning, watching the sunrise over the city you helped build. You angel-invest for fun. Money isn't a thought anymore — it's just there.",
-    reality:
-      "You wake at 6:30 AM to beat Bellandur traffic. 2 hours later, you reach a corporate park — built on the land you could've owned. You badge in, open Jira, join a standup. Your landlord just texted: rent up 15%. Again. You open Swiggy, check budget, close it. Dal chawal it is.",
-    videoPrompt:
-      "Cinematic slow pan across a luxury penthouse balcony in Bangalore at golden hour, overlooking a vast glass-and-steel tech corridor, filter coffee steaming on the railing, warm golden light, 4K cinematic quality, no text",
+    imagePrompts: [
+      "A wide shot of a marshy swampland in rural Bangalore in 2004, red soil, scattered coconut trees, a dusty road with a parked Bajaj Pulsar motorcycle, warm afternoon light, nostalgic Indian countryside, cinematic, 8k",
+      "A luxurious modern penthouse balcony in Bangalore overlooking the Outer Ring Road tech corridor at golden hour, glass skyscrapers, filter coffee on a marble table, wealthy retired lifestyle, cinematic warm tones, 8k",
+      "A tired Indian office worker stuck in heavy Bangalore traffic at 7AM, auto-rickshaws and buses, corporate IT park visible in distance, grey morning light, mundane daily commute, cinematic realism, 8k",
+    ],
   },
   {
     id: 'cry_btc_01',
@@ -26,14 +23,11 @@ const REGRET_DATA = [
     year: "2011",
     category: "Crypto",
     wheelColor: '#92400e',
-    opportunity:
-      "You mined 500 BTC on your hostel laptop in 2011. A fun weekend project. But the laptop was slow and GTA IV wasn't going to install itself. You formatted the drive. The wallet keys vanished forever.",
-    dreamLife:
-      "Those 500 BTC are worth ₹3,500 Crores today. You live between Goa and Dubai. You funded three startups before breakfast. Your Twitter bio just says 'Early.' People write case studies about your vision. You haven't opened a salary slip in 14 years.",
-    reality:
-      "You're in a 9-to-6 that's actually a 9-to-10. Sprint planning at 10, stakeholder sync at 3, 'quick call' at 5:47 PM. You just spent 20 minutes deciding if 'Extra Cheese' fits your Domino's budget. A college junior who kept his BTC just bought a second island. You see it on LinkedIn. Close the app. Open it again.",
-    videoPrompt:
-      "Dramatic slow-motion aerial shot of a luxury yacht cruising along Dubai marina at night, neon city lights reflecting on dark water, wealthy lifestyle, cinematic dark tones, 4K, no text",
+    imagePrompts: [
+      "A dimly lit Indian college hostel room in 2011, old laptop running on a messy desk, posters on the wall, warm tungsten light, nostalgic and moody atmosphere, cinematic, 8k",
+      "A luxury villa infinity pool overlooking the ocean in Goa at sunset, crypto billionaire lifestyle, champagne glasses, modern architecture, warm golden light, aspirational and cinematic, 8k",
+      "An Indian office worker at a cluttered corporate desk late at night, fluorescent lights, empty coffee cups, laptop showing spreadsheets, tired and overworked, cold blue tones, cinematic realism, 8k",
+    ],
   },
   {
     id: 'stk_mrf_01',
@@ -41,14 +35,11 @@ const REGRET_DATA = [
     year: "1990",
     category: "Stocks",
     wheelColor: '#14532d',
-    opportunity:
-      "Your father's friend tipped him off about MRF. 'Put the boy's first bonus in this,' he said. ₹10,000 in MRF. But a second-hand Maruti 800 was calling your name. You chose the car.",
-    dreamLife:
-      "Those ₹10,000 in MRF would be worth ₹42 Lakhs today — the most expensive stock in Indian history. The yearly dividends alone cover your home loan. House fully paid. You travel twice a year, spoil the grandkids, and sleep without an alarm.",
-    reality:
-      "The Maruti 800 rusted into scrap fifteen years ago. You're still paying EMIs on a 2BHK. Every morning you drive past an MRF billboard on your way to the office — open-plan seating, fluorescent lights, a manager who says 'let's take this offline.' Your father never brings it up. He doesn't have to.",
-    videoPrompt:
-      "Cinematic shot of a massive stock market ticker showing green surges, then slowly pulling back to reveal a luxury retirement home with beautiful garden and mountains, warm nostalgic tones, golden hour, 4K, no text",
+    imagePrompts: [
+      "A vintage 1990 Indian street scene, a shiny second-hand white Maruti 800 parked outside a small-town share broker office, retro Indian signage, warm nostalgic film grain, cinematic, 8k",
+      "A beautiful fully-paid luxury home in India with a lush garden, a retired couple having tea on the veranda, peaceful and wealthy retirement, golden warm tones, cinematic, 8k",
+      "An Indian man driving through morning traffic past a giant MRF tyre billboard, cramped car interior, EMI payment notification on phone, subtle melancholy, grey morning tones, cinematic realism, 8k",
+    ],
   },
   {
     id: 'rel_ggn_01',
@@ -56,14 +47,11 @@ const REGRET_DATA = [
     year: "2006",
     category: "Real Estate",
     wheelColor: '#7f1d1d',
-    opportunity:
-      "A plot in Gurgaon Sector 54 was selling for ₹8 Lakhs in 2006. A literal sand track. 'Who would live this far from Delhi?' you said. Your colleague bought two plots. You bought a plasma TV.",
-    dreamLife:
-      "That sand track is now Billionaire's Row. Your colleague retired at 38 and runs a boutique hotel in Jaipur 'for fun.' The parking spot alone costs more than your current flat. You could've owned the building. The block. The zip code.",
-    reality:
-      "You commute from Noida to Gurgaon. Three hours a day, five days a week. The plasma TV stopped working in 2012. You're still renting, still in cubicle B-14, still wondering why Amit from accounts looks so relaxed. Your colleague just posted drone footage of his Jaipur property on Instagram. You double-tap, hate yourself, and keep scrolling.",
-    videoPrompt:
-      "Ascending drone shot from a dusty sand track that transforms into a stunning luxury skyline of high-rise towers at night, billions of city lights stretching to the horizon, dramatic transformation, cinematic, 4K, no text",
+    imagePrompts: [
+      "A barren sandy plot of land on the outskirts of Gurgaon in 2006, a single signboard advertising plots for sale, dusty road, empty horizon, warm harsh afternoon sun, cinematic, 8k",
+      "A stunning luxury high-rise penthouse in Gurgaon at night, floor-to-ceiling windows overlooking a sea of bright city lights and skyscrapers, opulent interior, cinematic dark luxury, 8k",
+      "A crowded Delhi Metro train during morning rush hour, tired office workers packed in, phone showing Instagram with a luxury property post, urban grind, cold fluorescent tones, cinematic realism, 8k",
+    ],
   },
 ];
 
@@ -84,80 +72,66 @@ const wheelGradient = (() => {
 // --- STORYBOARD SCENE CONFIG ---
 const SCENE_CONFIG = [
   {
-    key: 'opportunity',
     label: 'THE OPPORTUNITY',
     sublabel: 'What was right in front of you',
-    gradient: 'from-[#1a1500] via-[#0a0a0a] to-[#0a0a0a]',
     accent: '#c5a059',
   },
   {
-    key: 'dreamLife',
     label: 'THE LIFE YOU NEVER LIVED',
     sublabel: 'If you had taken the chance',
-    gradient: 'from-[#001a05] via-[#0a0a0a] to-[#0a0a0a]',
     accent: '#22c55e',
   },
   {
-    key: 'reality',
     label: 'YOUR REALITY',
-    sublabel: 'Monday through Friday, 9 to whenever they let you leave',
-    gradient: 'from-[#1a0505] via-[#0a0a0a] to-[#0a0a0a]',
+    sublabel: 'Monday through Friday',
     accent: '#ef4444',
   },
 ];
 
 // ============================================================
-// VIDEO GENERATION (Google Veo via Gemini API)
+// IMAGE GENERATION (Google Imagen via Gemini API)
 // ============================================================
 
-const POLL_INTERVAL_MS = 10_000;
+const generateImage = async (prompt, signal) => {
+  let retries = 0;
+  const maxRetries = 5;
 
-const generateVideo = async (prompt, onReady, abortSignal) => {
-  if (!apiKey) return;
-
-  try {
-    const startRes = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/veo-2.0-generate-001:generateVideos?key=${apiKey}`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          instances: [{ prompt: `Luxury, hyper-realistic, dark cinematic style: ${prompt}` }],
-          parameters: { aspectRatio: '16:9' },
-        }),
-        signal: abortSignal,
-      }
-    );
-
-    const operation = await startRes.json();
-    if (!operation.name) return;
-
-    let result = operation;
-    while (!result.done) {
-      if (abortSignal?.aborted) return;
-      await new Promise((r) => setTimeout(r, POLL_INTERVAL_MS));
-
-      const pollRes = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/${result.name}?key=${apiKey}`,
-        { signal: abortSignal }
+  while (retries < maxRetries) {
+    if (signal?.aborted) return null;
+    try {
+      const response = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/imagen-4.0-generate-001:predict?key=${apiKey}`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            instances: [{ prompt: `Luxury, hyper-realistic, dark cinematic style, professional photography: ${prompt}` }],
+            parameters: { sampleCount: 1 },
+          }),
+          signal,
+        }
       );
-      result = await pollRes.json();
-    }
 
-    const videoFile = result.response?.generatedVideos?.[0]?.video;
-    if (!videoFile?.uri) return;
-
-    const downloadUrl = `${videoFile.uri}?key=${apiKey}`;
-    const fileRes = await fetch(downloadUrl, { signal: abortSignal });
-    const blob = await fileRes.blob();
-    const blobUrl = URL.createObjectURL(blob);
-
-    onReady(blobUrl);
-  } catch (err) {
-    if (err.name !== 'AbortError') {
-      console.warn('Video generation failed:', err.message);
+      const result = await response.json();
+      if (result.predictions?.[0]?.bytesBase64Encoded) {
+        return `data:image/png;base64,${result.predictions[0].bytesBase64Encoded}`;
+      }
+      throw new Error("No image in response");
+    } catch (err) {
+      if (err.name === 'AbortError') return null;
+      retries++;
+      await new Promise((r) => setTimeout(r, Math.pow(2, retries) * 1000));
     }
   }
+  return null;
+};
+
+const generateAllSceneImages = async (prompts, onImageReady, signal) => {
+  const promises = prompts.map(async (prompt, index) => {
+    const url = await generateImage(prompt, signal);
+    if (url) onImageReady(index, url);
+  });
+  await Promise.allSettled(promises);
 };
 
 // ============================================================
@@ -334,22 +308,10 @@ const SpinningStage = ({ targetRotation, item, onComplete }) => {
   );
 };
 
-const StoryboardStage = ({ item, sceneIndex, onNext, onReset, videoUrl, isVideoLoading }) => {
+const StoryboardStage = ({ item, sceneIndex, onNext, onReset, sceneImages }) => {
   const scene = SCENE_CONFIG[sceneIndex];
-  const videoRef = useRef(null);
-  const content =
-    sceneIndex === 0
-      ? item.opportunity
-      : sceneIndex === 1
-        ? item.dreamLife
-        : item.reality;
+  const currentImage = sceneImages[sceneIndex];
   const isLastScene = sceneIndex === 2;
-
-  useEffect(() => {
-    if (videoRef.current && videoUrl) {
-      videoRef.current.play().catch(() => {});
-    }
-  }, [videoUrl, sceneIndex]);
 
   return (
     <motion.div
@@ -357,126 +319,127 @@ const StoryboardStage = ({ item, sceneIndex, onNext, onReset, videoUrl, isVideoL
       animate={{ opacity: 1 }}
       className="flex-1 flex flex-col relative"
     >
-      {/* Video / gradient background layer */}
-      <div className="absolute inset-0 z-0">
-        <AnimatePresence>
-          {videoUrl && (
-            <motion.video
-              key="bg-video"
-              ref={videoRef}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 0.35 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 2 }}
-              className="absolute inset-0 w-full h-full object-cover"
-              style={{ filter: 'grayscale(60%) brightness(0.3)' }}
-              src={videoUrl}
-              autoPlay
-              loop
-              muted
-              playsInline
-            />
-          )}
-        </AnimatePresence>
-        <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-[#0a0a0a]/60 to-[#0a0a0a]" />
-      </div>
-
-      {/* Video loading indicator */}
-      {isVideoLoading && !videoUrl && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: [0.3, 0.7, 0.3] }}
-          transition={{ repeat: Infinity, duration: 2 }}
-          className="absolute top-6 right-6 z-20 flex items-center gap-2"
-        >
-          <div className="w-2 h-2 rounded-full bg-[#c5a059] animate-pulse" />
-          <span className="font-mono text-[9px] text-[#c5a059]/60 uppercase tracking-[0.3em] font-bold">
-            Generating video
-          </span>
-        </motion.div>
-      )}
-
-      {/* Storyboard content */}
       <AnimatePresence mode="wait">
         <motion.div
           key={sceneIndex}
-          initial={{ opacity: 0, y: 40 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -40 }}
-          transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-          className="flex-1 flex flex-col justify-between p-8 md:p-16 relative z-10"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.8 }}
+          className="flex-1 flex flex-col relative"
         >
-          <div>
-            <div className="flex items-center gap-3 mb-10">
-              {SCENE_CONFIG.map((_, i) => (
-                <div
-                  key={i}
-                  className="h-1 flex-1 rounded-full transition-all duration-700"
-                  style={{
-                    backgroundColor:
-                      i <= sceneIndex
-                        ? scene.accent
-                        : 'rgba(255,255,255,0.06)',
-                  }}
+          {/* Full-screen image background */}
+          <div className="absolute inset-0 z-0 bg-black">
+            <AnimatePresence mode="wait">
+              {currentImage ? (
+                <motion.img
+                  key={`img-${sceneIndex}`}
+                  initial={{ opacity: 0, scale: 1.1 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 1.2, ease: 'easeOut' }}
+                  src={currentImage}
+                  alt=""
+                  className="w-full h-full object-cover"
                 />
-              ))}
-            </div>
+              ) : (
+                <motion.div
+                  key={`loader-${sceneIndex}`}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="w-full h-full flex items-center justify-center"
+                >
+                  <div className="flex flex-col items-center gap-4">
+                    <motion.div
+                      animate={{ rotate: 360 }}
+                      transition={{ repeat: Infinity, duration: 2, ease: 'linear' }}
+                      className="w-10 h-10 border-2 border-transparent rounded-full"
+                      style={{ borderTopColor: scene.accent }}
+                    />
+                    <span className="font-mono text-[10px] uppercase tracking-[0.4em] font-bold" style={{ color: scene.accent }}>
+                      Generating scene
+                    </span>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
 
-            <motion.span
-              initial={{ x: -20, opacity: 0 }}
-              animate={{ x: 0, opacity: 1 }}
-              transition={{ delay: 0.2 }}
-              className="text-sm font-black uppercase tracking-[0.4em] mb-2 block"
-              style={{ color: scene.accent }}
-            >
-              {scene.label}
-            </motion.span>
-            <motion.p
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.4 }}
-              className="text-neutral-600 text-xs uppercase tracking-widest font-bold"
-            >
-              {scene.sublabel}
-            </motion.p>
+            {/* Gradient overlays for readability */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-black/60" />
           </div>
 
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3, duration: 0.6 }}
-            className="max-w-4xl my-auto py-8"
-          >
-            <p className="text-2xl md:text-[38px] font-black leading-[1.2] italic text-neutral-100 tracking-tight">
-              &ldquo;{content}&rdquo;
-            </p>
-          </motion.div>
+          {/* Content overlay */}
+          <div className="relative z-10 flex-1 flex flex-col justify-between p-8 md:p-16">
+            {/* Progress bar + scene header */}
+            <div>
+              <div className="flex items-center gap-3 mb-8">
+                {SCENE_CONFIG.map((_, i) => (
+                  <div
+                    key={i}
+                    className="h-1 flex-1 rounded-full transition-all duration-700"
+                    style={{
+                      backgroundColor:
+                        i <= sceneIndex ? scene.accent : 'rgba(255,255,255,0.1)',
+                    }}
+                  />
+                ))}
+              </div>
 
-          <div className="flex justify-between items-center">
-            <p className="text-neutral-700 text-xs uppercase tracking-widest font-bold">
-              {item.title} &middot; {item.year} &middot; {item.category}
-            </p>
+              <motion.span
+                initial={{ x: -20, opacity: 0 }}
+                animate={{ x: 0, opacity: 1 }}
+                transition={{ delay: 0.3 }}
+                className="text-sm font-black uppercase tracking-[0.4em] block"
+                style={{ color: scene.accent }}
+              >
+                {scene.label}
+              </motion.span>
+              <motion.p
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.5 }}
+                className="text-white/40 text-xs uppercase tracking-widest font-bold mt-1"
+              >
+                {scene.sublabel}
+              </motion.p>
+            </div>
 
-            {isLastScene ? (
-              <button
-                onClick={onReset}
-                className="px-10 py-4 bg-white text-black font-black uppercase italic tracking-widest hover:bg-[#c5a059] transition-all cursor-pointer text-sm"
-                aria-label="Spin again"
-              >
-                Spin Again
-              </button>
-            ) : (
-              <button
-                onClick={onNext}
-                className="px-8 py-4 border border-white/20 text-white font-black uppercase italic tracking-widest hover:bg-white/5 transition-colors cursor-pointer group text-sm"
-                aria-label="Continue to next scene"
-              >
-                Continue
-                <span className="inline-block ml-2 group-hover:translate-x-1 transition-transform">
-                  →
-                </span>
-              </button>
-            )}
+            {/* Spacer */}
+            <div />
+
+            {/* Footer */}
+            <motion.div
+              initial={{ y: 20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ delay: 0.4 }}
+              className="flex justify-between items-center"
+            >
+              <p className="text-white/30 text-xs uppercase tracking-widest font-bold">
+                {item.title} &middot; {item.year}
+              </p>
+
+              {isLastScene ? (
+                <button
+                  onClick={onReset}
+                  className="px-10 py-4 bg-white text-black font-black uppercase italic tracking-widest hover:bg-[#c5a059] transition-all cursor-pointer text-sm"
+                  aria-label="Spin again"
+                >
+                  Spin Again
+                </button>
+              ) : (
+                <button
+                  onClick={onNext}
+                  className="px-8 py-4 border border-white/20 text-white font-black uppercase italic tracking-widest hover:bg-white/10 transition-colors cursor-pointer group text-sm backdrop-blur-sm"
+                  aria-label="Continue to next scene"
+                >
+                  Continue
+                  <span className="inline-block ml-2 group-hover:translate-x-1 transition-transform">
+                    →
+                  </span>
+                </button>
+              )}
+            </motion.div>
           </div>
         </motion.div>
       </AnimatePresence>
@@ -494,15 +457,8 @@ const App = () => {
   const [wheelRotation, setWheelRotation] = useState(0);
   const [sceneIndex, setSceneIndex] = useState(0);
   const [spinKey, setSpinKey] = useState(0);
-  const [videoUrl, setVideoUrl] = useState(null);
-  const [isVideoLoading, setIsVideoLoading] = useState(false);
+  const [sceneImages, setSceneImages] = useState([null, null, null]);
   const abortRef = useRef(null);
-
-  useEffect(() => {
-    return () => {
-      if (videoUrl) URL.revokeObjectURL(videoUrl);
-    };
-  }, [videoUrl]);
 
   const handleSpin = () => {
     const item =
@@ -518,28 +474,29 @@ const App = () => {
     const fullSpins = (5 + Math.floor(Math.random() * 3)) * 360;
 
     if (abortRef.current) abortRef.current.abort();
-    if (videoUrl) URL.revokeObjectURL(videoUrl);
 
     setSelectedItem(item);
     setWheelRotation(fullSpins + offset);
     setSpinKey((prev) => prev + 1);
     setSceneIndex(0);
-    setVideoUrl(null);
+    setSceneImages([null, null, null]);
     setStage('spinning');
 
     if (apiKey) {
-      setIsVideoLoading(true);
       const controller = new AbortController();
       abortRef.current = controller;
 
-      generateVideo(
-        item.videoPrompt,
-        (url) => {
-          setVideoUrl(url);
-          setIsVideoLoading(false);
+      generateAllSceneImages(
+        item.imagePrompts,
+        (index, url) => {
+          setSceneImages((prev) => {
+            const next = [...prev];
+            next[index] = url;
+            return next;
+          });
         },
         controller.signal
-      ).catch(() => setIsVideoLoading(false));
+      );
     }
   };
 
@@ -551,9 +508,7 @@ const App = () => {
 
   const handleReset = () => {
     if (abortRef.current) abortRef.current.abort();
-    if (videoUrl) URL.revokeObjectURL(videoUrl);
-    setVideoUrl(null);
-    setIsVideoLoading(false);
+    setSceneImages([null, null, null]);
     setStage('landing');
   };
 
@@ -583,8 +538,7 @@ const App = () => {
             sceneIndex={sceneIndex}
             onNext={handleNextScene}
             onReset={handleReset}
-            videoUrl={videoUrl}
-            isVideoLoading={isVideoLoading}
+            sceneImages={sceneImages}
           />
         )}
       </AnimatePresence>
