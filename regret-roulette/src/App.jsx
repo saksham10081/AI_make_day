@@ -12,9 +12,9 @@ const REGRET_DATA = [
     category: "Real Estate",
     wheelColor: '#8B6914',
     imagePrompts: [
-      "A wide shot of a marshy swampland in rural Bangalore in 2004, red soil, scattered coconut trees, a dusty road with a parked Bajaj Pulsar motorcycle, warm afternoon light, nostalgic Indian countryside, cinematic, 8k",
-      "A luxurious modern penthouse balcony in Bangalore overlooking the Outer Ring Road tech corridor at golden hour, glass skyscrapers, filter coffee on a marble table, wealthy retired lifestyle, cinematic warm tones, 8k",
-      "A tired Indian office worker stuck in heavy Bangalore traffic at 7AM, auto-rickshaws and buses, corporate IT park visible in distance, grey morning light, mundane daily commute, cinematic realism, 8k",
+      "Marshy swampland in rural Bangalore 2004, red soil, Bajaj Pulsar motorcycle on dusty road, warm afternoon light, cinematic",
+      "Luxury penthouse balcony in Bangalore overlooking glass skyscrapers at golden hour, filter coffee, wealthy lifestyle, cinematic",
+      "Indian office worker stuck in heavy Bangalore traffic at dawn, auto-rickshaws, corporate park in distance, grey tones, cinematic",
     ],
   },
   {
@@ -24,9 +24,9 @@ const REGRET_DATA = [
     category: "Crypto",
     wheelColor: '#92400e',
     imagePrompts: [
-      "A dimly lit Indian college hostel room in 2011, old laptop running on a messy desk, posters on the wall, warm tungsten light, nostalgic and moody atmosphere, cinematic, 8k",
-      "A luxury villa infinity pool overlooking the ocean in Goa at sunset, crypto billionaire lifestyle, champagne glasses, modern architecture, warm golden light, aspirational and cinematic, 8k",
-      "An Indian office worker at a cluttered corporate desk late at night, fluorescent lights, empty coffee cups, laptop showing spreadsheets, tired and overworked, cold blue tones, cinematic realism, 8k",
+      "Indian college hostel room 2011, old laptop on messy desk, posters on wall, warm tungsten light, moody nostalgic, cinematic",
+      "Luxury infinity pool villa overlooking ocean in Goa at sunset, champagne, modern architecture, golden light, cinematic",
+      "Indian office worker at cluttered desk late at night, fluorescent lights, empty coffee cups, overworked, cold blue tones, cinematic",
     ],
   },
   {
@@ -36,9 +36,9 @@ const REGRET_DATA = [
     category: "Stocks",
     wheelColor: '#14532d',
     imagePrompts: [
-      "A vintage 1990 Indian street scene, a shiny second-hand white Maruti 800 parked outside a small-town share broker office, retro Indian signage, warm nostalgic film grain, cinematic, 8k",
-      "A beautiful fully-paid luxury home in India with a lush garden, a retired couple having tea on the veranda, peaceful and wealthy retirement, golden warm tones, cinematic, 8k",
-      "An Indian man driving through morning traffic past a giant MRF tyre billboard, cramped car interior, EMI payment notification on phone, subtle melancholy, grey morning tones, cinematic realism, 8k",
+      "Vintage 1990 Indian street, white Maruti 800 parked outside share broker office, retro signage, warm nostalgic film grain, cinematic",
+      "Luxury Indian home with lush garden, retired couple having tea on veranda, peaceful wealthy retirement, golden warm tones, cinematic",
+      "Indian man driving past giant MRF billboard in morning traffic, cramped car, melancholy, grey tones, cinematic",
     ],
   },
   {
@@ -48,9 +48,9 @@ const REGRET_DATA = [
     category: "Real Estate",
     wheelColor: '#7f1d1d',
     imagePrompts: [
-      "A barren sandy plot of land on the outskirts of Gurgaon in 2006, a single signboard advertising plots for sale, dusty road, empty horizon, warm harsh afternoon sun, cinematic, 8k",
-      "A stunning luxury high-rise penthouse in Gurgaon at night, floor-to-ceiling windows overlooking a sea of bright city lights and skyscrapers, opulent interior, cinematic dark luxury, 8k",
-      "A crowded Delhi Metro train during morning rush hour, tired office workers packed in, phone showing Instagram with a luxury property post, urban grind, cold fluorescent tones, cinematic realism, 8k",
+      "Barren sandy plot on Gurgaon outskirts 2006, plots-for-sale signboard, dusty road, empty horizon, harsh afternoon sun, cinematic",
+      "Luxury high-rise penthouse in Gurgaon at night, floor-to-ceiling windows, bright city lights and skyscrapers, opulent interior, cinematic",
+      "Crowded Delhi Metro morning rush hour, tired office workers, phone showing Instagram property post, cold fluorescent tones, cinematic",
     ],
   },
 ];
@@ -94,18 +94,18 @@ const SCENE_CONFIG = [
 
 const generateImage = async (prompt, signal) => {
   let retries = 0;
-  const maxRetries = 5;
+  const maxRetries = 2;
 
   while (retries < maxRetries) {
     if (signal?.aborted) return null;
     try {
       const response = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/imagen-4.0-generate-001:predict?key=${apiKey}`,
+        `https://generativelanguage.googleapis.com/v1beta/models/imagen-4.0-fast-generate-001:predict?key=${apiKey}`,
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            instances: [{ prompt: `Luxury, hyper-realistic, dark cinematic style, professional photography: ${prompt}` }],
+            instances: [{ prompt }],
             parameters: { sampleCount: 1 },
           }),
           signal,
