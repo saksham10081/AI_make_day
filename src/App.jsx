@@ -31,7 +31,7 @@ const REGRET_DATA = [
     texts: [
       "It sounded fake.\nInternet money? No RBI? No office?\nYou trusted something you could hold — not something stored in a password.\nYou said, \"This will crash. I'm not stupid.\"",
       "Your tiny experiment becomes legendary.\nFamily members now ask for \"crypto guidance.\"\nYou talk about volatility like it's weather.\nYou don't refresh your salary credit message anymore.\nYou refresh markets for entertainment.",
-      "You forward crash news in the family group chat.\n\"See? I was right.\"\nThen you open an exchange app you installed once.\nBalance: ₹0.\nYou close it like it never existed.",
+      "Your friend bought 10 Bitcoin that year. You laughed.\nToday his portfolio has more zeros than your salary.\nYou still Google \"Bitcoin price\" at 2 AM.\nYou calculate what ₹5,000 back then would be worth now.\nThe number makes your chest tight.\nYou close the tab and tell yourself it was gambling anyway.",
     ],
     images: [
       "/images/bitcoin-opportunity.png",
@@ -613,26 +613,23 @@ const StoryboardStage = ({ item, sceneIndex, onNext, onReset }) => {
                 >
                   {scene.number}
                 </div>
-                {/* Scene label overlay on image bottom */}
-                <div className="absolute bottom-0 left-0 right-0 px-5 pb-4 md:px-6 md:pb-5">
-                  <span
-                    className="text-[10px] md:text-xs font-black uppercase tracking-[0.3em]"
-                    style={{ color: scene.accent }}
-                  >
-                    {scene.label}
-                  </span>
-                </div>
               </div>
             </motion.div>
 
-            {/* Title — centered */}
+            {/* Scene label + Title — centered, label first */}
             <motion.div
               initial={{ y: 12, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{ delay: 0.2, duration: 0.6 }}
-              className="text-center mt-12 md:mt-16 mb-4 md:mb-6"
+              className="text-center mt-8 md:mt-12 mb-4 md:mb-6"
             >
-              <h2 className="text-2xl md:text-4xl font-black italic uppercase tracking-tight leading-[0.9] pt-9">
+              <span
+                className="inline-block text-[11px] md:text-sm font-black uppercase tracking-[0.35em] mb-5 md:mb-7"
+                style={{ color: scene.accent }}
+              >
+                {scene.label}
+              </span>
+              <h2 className="text-2xl md:text-4xl font-black italic uppercase tracking-tight leading-[0.9]">
                 {item.title}
               </h2>
               <p className="text-white/20 text-base md:text-lg italic font-bold pt-3">
